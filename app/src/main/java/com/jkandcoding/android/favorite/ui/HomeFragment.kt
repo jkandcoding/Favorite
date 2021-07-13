@@ -1,22 +1,30 @@
 package com.jkandcoding.android.favorite.ui
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.*
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.jkandcoding.android.favorite.R
-import com.jkandcoding.android.favorite.database.Movie
+import com.jkandcoding.android.favorite.database.MovieDB
 import com.jkandcoding.android.favorite.databinding.FragmentHomeBinding
+import com.jkandcoding.android.favorite.network.Movie
+import com.jkandcoding.android.favorite.other.Resource
 import com.jkandcoding.android.favorite.other.Status
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.*
+import kotlin.concurrent.schedule
+import kotlin.collections.ArrayList
 
 @AndroidEntryPoint
-class HomeFragment : Fragment(R.layout.fragment_home) {
+class HomeFragment : Fragment(R.layout.fragment_home), MovieSearchAdapter.OnItemClickListener {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewManager: RecyclerView.LayoutManager
@@ -24,25 +32,32 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private var itemList = mutableListOf<RecyclerViewContainer>()
     private val headerYearsArray: ArrayList<String> = arrayListOf()
 
-    private var searchMovieList: List<Movie> = listOf()
-//    private var testList = listOf("1", "4", "2-6", "9", "5", "2")
-    private var searchMovieListOrdered: List<Movie> = listOf()
-//    private var testListOrdered: List<String> = listOf()
+    private var searchMovieList: List<MovieDB> = listOf()
+    private var searchMovieListOrdered: List<MovieDB> = listOf()
+
+    private var searchMovieByImdbID: Movie? = null
+
+    private val handler: Handler = Handler(Looper.getMainLooper())
 
     private val viewModel by viewModels<MovieViewModel>()
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!      // return nonnullable type
 
+
+
 //    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 //
 //        val viewOfLayout = inflater.inflate(R.layout.fragment_home, container, false)
 //        return viewOfLayout
+//
 //    }
 
     companion object {
         fun newInstance(): HomeFragment = HomeFragment()
     }
+
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -50,22 +65,20 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         setHasOptionsMenu(true)
 
         setData()
-//        testListOrdered = testList.sortedWith(compareBy { it })
-//        Log.d("responseMovie", "SORTED LIST: " + testListOrdered)
+
 
     }
 
     private fun setRecyclerView() {
         viewManager = LinearLayoutManager(this.context)
-        val myAdapter = MovieSearchAdapter(itemList)
+        val myAdapter = MovieSearchAdapter(itemList, this)
         myAdapter.notifyDataSetChanged()
 
-       //binding.searchRecyclerView.apply {
+        //binding.searchRecyclerView.apply {
         recyclerView = binding.searchRecyclerView.apply {
             setHasFixedSize(true)
             layoutManager = viewManager
             adapter = myAdapter
-
             visibility = View.VISIBLE
         }
     }
@@ -74,7 +87,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         viewModel.res.observe(viewLifecycleOwner) { resource ->
             when (resource.status) {
                 Status.SUCCESS -> {
-                    itemList.clear()
+
                     resource.data?.let { movieResponse ->
                         if (movieResponse.Search.isNotEmpty()) {
                             searchMovieList = movieResponse.Search
@@ -82,16 +95,14 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                                 "responseMovie",
                                 "HomeFragment - SUCCESS - searchMovieList.size: " + searchMovieList.size
                             )
+                            Log.d(
+                                "responseMovie",
+                                "HomeFragment - SUCCESS searchMovieList: " + searchMovieList
+                            )
+                            searchMovieListOrdered =
+                                searchMovieList.sortedWith(compareBy { it.Year })
 
-                        searchMovieListOrdered = searchMovieList.sortedWith(compareBy { it.Year })
-
-                                for (i in (0 until searchMovieListOrdered.size)) {
-                                    if (!headerYearsArray.contains(searchMovieListOrdered[i].Year)) {
-                                        itemList.add(RecyclerViewContainer(null, true, searchMovieListOrdered[i].Year))
-                                    }
-                                    itemList.add(RecyclerViewContainer(searchMovieListOrdered[i], false, null))
-                                    headerYearsArray.add(searchMovieListOrdered[i].Year)
-                                }
+                            setAdapterListWithMoviesAndHeaders()
                             setRecyclerView()
 
                             // empty list from API
@@ -112,6 +123,30 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     Log.d("responseMovie", "HomeFragment - ERROR: " + resource.message)
                 }
             }
+        }
+    }
+
+    private fun setAdapterListWithMoviesAndHeaders() {
+        itemList.clear()
+        headerYearsArray.clear()
+        for (i in (0 until searchMovieListOrdered.size)) {
+            if (!headerYearsArray.contains(searchMovieListOrdered[i].Year)) {
+                itemList.add(
+                    RecyclerViewContainer(
+                        null,
+                        true,
+                        searchMovieListOrdered[i].Year
+                    )
+                )
+            }
+            itemList.add(
+                RecyclerViewContainer(
+                    searchMovieListOrdered[i],
+                    false,
+                    null
+                )
+            )
+            headerYearsArray.add(searchMovieListOrdered[i].Year)
         }
     }
 
@@ -136,11 +171,69 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 return true
             }
         })
+    }
 
+    override fun onResume() {
+        super.onResume()
+        setAdapterListWithMoviesAndHeaders()
+        Log.d("movieDetails", "onResume " + itemList.size)
+        setRecyclerView()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onItemClick(imdbID: String) {
+        Log.d("movieDetails", "HomeFragment-onItemClick, imdbID: " + imdbID)
+        // get movieDetails from api and show them in DetailsFragment
+        //viewModel.setImdbIDForSearch(imdbID)
+
+        viewModel.getMovieDetails(imdbID)
+
+        //todo this must be handled differently
+        Handler(Looper.getMainLooper()).postDelayed({
+            seeMovieResultFromApi()
+        }, 500)
+
+    }
+
+    private fun seeMovieResultFromApi() {
+        Log.d("movieDetails", "HomeFragment-seeMovieResultFromApi, resMovie: " + viewModel.resMovieDetails.value)
+        viewModel.resMovieDetails.observe(viewLifecycleOwner) { resource ->
+            when (resource.status) {
+                Status.SUCCESS -> {
+                    resource.data?.let { movieResponse ->
+
+                        searchMovieByImdbID = movieResponse
+                        Log.d(
+                            "movieDetails",
+                            "HomeFragment - SUCCESS - searchMovieDetails: " + searchMovieByImdbID!!.Title
+                        )
+                        searchMovieByImdbID?.let { goToDetailsFragment(it) }
+
+                    }
+                }
+                Status.LOADING -> {
+                    Log.d("movieDetails", "HomeFragment-searchMovieDetails - LOADING...")
+                }
+                Status.ERROR -> {
+                    Snackbar.make(
+                        binding.root,
+                        "Can't get movie details, " + resource.message,
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                    Log.d("movieDetails", "HomeFragment - ERROR: " + resource.message)
+                }
+            }
+        }
+    }
+
+    private fun goToDetailsFragment(movie: Movie) {
+        viewModel.setImdbIDForSearch("")
+        val action = HomeFragmentDirections.actionHomeFragmentToDetailsFragment(movie)
+        Log.d("movieDetails", "HomeFragment-goToDetailsFragment, title: " + movie.Title)
+        findNavController().navigate(action)
     }
 }

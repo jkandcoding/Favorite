@@ -1,9 +1,9 @@
 package com.jkandcoding.android.favorite.ui
 
-import com.jkandcoding.android.favorite.database.Movie
+import com.jkandcoding.android.favorite.database.MovieDB
 
 class RecyclerViewContainer(
-    var movie: Movie?,
+    var movie: MovieDB?,
     var isHeader: Boolean,
     var headerYear: String?
 ) {

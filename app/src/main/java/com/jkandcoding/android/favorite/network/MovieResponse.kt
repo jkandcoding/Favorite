@@ -1,10 +1,9 @@
 package com.jkandcoding.android.favorite.network
 
-import com.jkandcoding.android.favorite.database.Movie
-import java.lang.reflect.Array
+import com.jkandcoding.android.favorite.database.MovieDB
 
 data class MovieResponse(
-    val Search: List<Movie>,
+    val Search: List<MovieDB>,
     val totalResults: String,
     val Response: Boolean
 )

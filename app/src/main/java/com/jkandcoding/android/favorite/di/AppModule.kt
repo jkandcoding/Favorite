@@ -2,6 +2,8 @@ package com.jkandcoding.android.favorite.di
 
 import android.content.Context
 import android.net.ConnectivityManager
+import com.jkandcoding.android.favorite.database.MovieDao
+import com.jkandcoding.android.favorite.database.MovieDatabase
 import com.jkandcoding.android.favorite.network.ConnectivityCheckingInterceptor
 import com.jkandcoding.android.favorite.network.FavoriteApi
 import dagger.Module
@@ -35,6 +37,15 @@ object AppModule {
     @Singleton
     fun provideFavoriteApi(retrofit: Retrofit): FavoriteApi =
         retrofit.create(FavoriteApi::class.java)
+
+    @Provides
+    fun provideMovieDao(movieDatabase: MovieDatabase): MovieDao = movieDatabase.movieDao()
+
+
+    @Provides
+    @Singleton
+    fun provideMovieDatabase(
+        @ApplicationContext context: Context): MovieDatabase = MovieDatabase.getInstance(context)
 
     @Provides
     @Singleton
