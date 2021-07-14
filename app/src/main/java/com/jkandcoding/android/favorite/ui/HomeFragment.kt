@@ -4,7 +4,9 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import android.view.*
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.View
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -16,12 +18,8 @@ import com.jkandcoding.android.favorite.R
 import com.jkandcoding.android.favorite.database.MovieDB
 import com.jkandcoding.android.favorite.databinding.FragmentHomeBinding
 import com.jkandcoding.android.favorite.network.Movie
-import com.jkandcoding.android.favorite.other.Resource
 import com.jkandcoding.android.favorite.other.Status
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.*
-import kotlin.concurrent.schedule
-import kotlin.collections.ArrayList
 
 @AndroidEntryPoint
 class HomeFragment : Fragment(R.layout.fragment_home), MovieSearchAdapter.OnItemClickListener {

@@ -1,5 +1,6 @@
 package com.jkandcoding.android.favorite.ui
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,19 +10,20 @@ import androidx.annotation.IdRes
 import androidx.recyclerview.widget.RecyclerView
 import com.jkandcoding.android.favorite.R
 import com.jkandcoding.android.favorite.database.MovieDB
-import com.jkandcoding.android.favorite.network.Movie
-import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 class MovieSearchAdapter(
     private val dataset: MutableList<RecyclerViewContainer>,
     private val listener: OnItemClickListener
-) :
-    RecyclerView.Adapter<MovieSearchAdapter.MovieViewHolder>() {
+) : RecyclerView.Adapter<MovieSearchAdapter.MovieViewHolder>() {
 
-    inner class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    var savedMovies: ArrayList<MovieDB> = arrayListOf()
 
+    inner class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+         {
+
+        // holds all the child views
         private val viewMap: MutableMap<Int, View> = HashMap()
 
         init {
@@ -49,7 +51,12 @@ class MovieSearchAdapter(
             view.text = year
         }
 
-        fun setItems(item: MovieDB, @IdRes textViewId: Int, @IdRes toggleBtnId: Int) {
+        fun setItems(
+            item: MovieDB,
+            @IdRes textViewId: Int,
+            @IdRes toggleBtnId: Int,
+            position: Int
+        ) {
             //todo set onclicklistener on button inside item
             val textView = (viewMap[textViewId]
                 ?: throw IllegalArgumentException("View for $textViewId not found")) as? TextView
@@ -60,14 +67,31 @@ class MovieSearchAdapter(
                 ?: throw IllegalArgumentException("View for $toggleBtnId not found")) as? ToggleButton
                 ?: throw IllegalArgumentException("View for $toggleBtnId is not a TextView")
 
+            toggleBtnView.setOnCheckedChangeListener(null)
 
-            toggleBtnView.setOnCheckedChangeListener { compoundButton, isChecked ->
+            toggleBtnView.isChecked = item.isFavorite
+            Log.d("favButton", "set-aj prije klika, ovaj je favorite: " + item.isFavorite)
 
+            toggleBtnView.setOnCheckedChangeListener { _, b ->
+                if (item.isFavorite) {
+                    toggleBtnView.isChecked = false
+                    Log.d("favButton", "setOnCheckedChangeListener, wasFavorite ")
+                    item.isFavorite = false
+                    savedMovies.remove(item)
+                } else {
+                    toggleBtnView.isChecked = true
+                    Log.d("favButton", "setOnCheckedChangeListener, wasNotFavorite ")
+                    item.isFavorite = true
+                    savedMovies.add(item)
+                }
             }
 
         }
-    }
 
+
+
+
+    }
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
@@ -82,14 +106,13 @@ class MovieSearchAdapter(
 
     override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
         val item = dataset[position]
-        val isFavorite : ArrayList<Boolean> = arrayListOf()
 
         if (item.isHeader) {
             item.headerYear?.let {
                 holder.setHeader(R.id.tv_header_year, item.headerYear!!)
             }
         } else {
-            holder.setItems(item.movie!!, R.id.tv_search_title, R.id.tb_search_toggleBtn)
+            holder.setItems(item.movie!!, R.id.tv_search_title, R.id.tb_search_toggleBtn, position)
         }
 
         holder.itemView.setOnClickListener {
@@ -116,7 +139,6 @@ class MovieSearchAdapter(
     interface OnItemClickListener {
         fun onItemClick(imdbID: String)
     }
-
 
 
 }

@@ -9,5 +9,6 @@ data class MovieDB(
     val Year: String,
     @PrimaryKey
     val imdbID: String,
-
-)
+) {
+    var isFavorite: Boolean = false
+}
