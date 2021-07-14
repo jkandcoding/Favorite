@@ -8,19 +8,28 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.jkandcoding.android.favorite.ui.HomeFragment"
+        android:name="com.jkandcoding.android.favorite.ui.home.HomeFragment"
         android:label="Home Fragment"
         tools:layout="@layout/fragment_home">
         <action
-            android:id="@+id/action_homeFragment_to_detailsFragment"
-            app:destination="@id/detailsFragment" />
+            android:id="@+id/action_homeFragment_to_searchFragment"
+            app:destination="@id/searchFragment" />
     </fragment>
     <fragment
         android:id="@+id/detailsFragment"
-        android:name="com.jkandcoding.android.favorite.ui.DetailsFragment"
-        android:label="DetailsFragment" >
+        android:name="com.jkandcoding.android.favorite.ui.details.DetailsFragment"
+        android:label="Details Fragment">
         <argument
             android:name="movieDetails"
             app:argType="com.jkandcoding.android.favorite.network.Movie" />
+    </fragment>
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.jkandcoding.android.favorite.ui.search.SearchFragment"
+        android:label="Search Fragment"
+        tools:layout="@layout/fragment_search">
+        <action
+            android:id="@+id/action_searchFragment_to_detailsFragment"
+            app:destination="@id/detailsFragment" />
     </fragment>
 </navigation>

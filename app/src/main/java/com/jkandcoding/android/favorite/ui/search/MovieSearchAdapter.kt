@@ -1,4 +1,4 @@
-package com.jkandcoding.android.favorite.ui
+package com.jkandcoding.android.favorite.ui.search
 
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,13 +15,13 @@ import kotlin.collections.HashMap
 
 class MovieSearchAdapter(
     private val dataset: MutableList<RecyclerViewContainer>,
-    private val listener: OnItemClickListener
+    private val listener: OnItemClickListener,
+    private val saveMovieListener: OnSaveMovieBtnClickListener
 ) : RecyclerView.Adapter<MovieSearchAdapter.MovieViewHolder>() {
 
     var savedMovies: ArrayList<MovieDB> = arrayListOf()
 
-    inner class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
-         {
+    inner class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         // holds all the child views
         private val viewMap: MutableMap<Int, View> = HashMap()
@@ -77,18 +77,21 @@ class MovieSearchAdapter(
                     toggleBtnView.isChecked = false
                     Log.d("favButton", "setOnCheckedChangeListener, wasFavorite ")
                     item.isFavorite = false
-                    savedMovies.remove(item)
+                    // delete movie
+                    saveMovieListener.onSaveMovieBtnClick(item, false)
+                    // savedMovies.remove(item)
                 } else {
                     toggleBtnView.isChecked = true
                     Log.d("favButton", "setOnCheckedChangeListener, wasNotFavorite ")
                     item.isFavorite = true
-                    savedMovies.add(item)
+                    // save movie
+                    saveMovieListener.onSaveMovieBtnClick(item, true)
+                    // savedMovies.add(item)
                 }
             }
 
+
         }
-
-
 
 
     }
@@ -140,5 +143,7 @@ class MovieSearchAdapter(
         fun onItemClick(imdbID: String)
     }
 
-
+    interface OnSaveMovieBtnClickListener {
+        fun onSaveMovieBtnClick(movie: MovieDB, save: Boolean)
+    }
 }

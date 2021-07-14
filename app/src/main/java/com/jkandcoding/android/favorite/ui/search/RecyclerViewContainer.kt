@@ -1,4 +1,4 @@
-package com.jkandcoding.android.favorite.ui
+package com.jkandcoding.android.favorite.ui.search
 
 import com.jkandcoding.android.favorite.database.MovieDB
 

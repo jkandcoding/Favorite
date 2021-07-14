@@ -23,10 +23,14 @@ class MovieViewModel @Inject constructor(
     private val _res = MutableLiveData<Resource<MovieResponse>>()
     val res: LiveData<Resource<MovieResponse>>
         get() = _res
+
     private var _resMovieDetails = MutableLiveData<Resource<Movie>>()
     val resMovieDetails: LiveData<Resource<Movie>>
         get() = _resMovieDetails
 
+//    private var _favoriteMovies = MutableLiveData<List<MovieDB>>()
+//    val favoriteMovies: LiveData<List<MovieDB>>
+//        get() = _favoriteMovies
 
     private fun getMovies(title: String) = viewModelScope.launch {
         try {
@@ -45,12 +49,12 @@ class MovieViewModel @Inject constructor(
     }
 
     fun getMovieDetails(imdbId: String) = viewModelScope.launch {
-         Log.d("movieDetails", "VIEWMODEL, resMovie: " + resMovieDetails.value)
+        Log.d("movieDetails", "VIEWMODEL, resMovie: " + resMovieDetails.value)
         try {
             _resMovieDetails.postValue(Resource.loading(null))
             repository.getMovieByImdbID(imdbId).let {
                 if (it.isSuccessful) {
-                   _resMovieDetails.postValue(Resource.success(it.body()))
+                    _resMovieDetails.postValue(Resource.success(it.body()))
                 } else {
                     _resMovieDetails.postValue(Resource.error(it.raw().message(), null))
                 }
@@ -72,8 +76,7 @@ class MovieViewModel @Inject constructor(
         getMovieDetails(imdbIDToSearch)
     }
 
-
-
+//-----------DATABASE---------
 
     // insert favorite movie to room database
     fun insertMovie(movie: MovieDB) = viewModelScope.launch {
@@ -84,5 +87,10 @@ class MovieViewModel @Inject constructor(
     fun deleteMovie(movie: MovieDB) = viewModelScope.launch {
         repository.delete(movie)
     }
+
+
+
+
+    val favMovies: LiveData<List<MovieDB>> = repository.favoriteMovies
 
 }

@@ -1,4 +1,4 @@
-package com.jkandcoding.android.favorite.ui
+package com.jkandcoding.android.favorite.ui.details
 
 import android.os.Bundle
 import android.view.LayoutInflater

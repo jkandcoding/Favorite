@@ -1,4 +1,4 @@
-package com.jkandcoding.android.favorite.ui
+package com.jkandcoding.android.favorite.ui.search
 
 import android.os.Bundle
 import android.os.Handler
@@ -9,24 +9,22 @@ import android.view.MenuInflater
 import android.view.View
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.jkandcoding.android.favorite.R
 import com.jkandcoding.android.favorite.database.MovieDB
-import com.jkandcoding.android.favorite.databinding.FragmentHomeBinding
+import com.jkandcoding.android.favorite.databinding.FragmentSearchBinding
 import com.jkandcoding.android.favorite.network.Movie
 import com.jkandcoding.android.favorite.other.Status
-import dagger.hilt.android.AndroidEntryPoint
+import com.jkandcoding.android.favorite.ui.MovieViewModel
 
-@AndroidEntryPoint
-class HomeFragment : Fragment(R.layout.fragment_home), MovieSearchAdapter.OnItemClickListener {
+class SearchFragment : Fragment(R.layout.fragment_search), MovieSearchAdapter.OnItemClickListener, MovieSearchAdapter.OnSaveMovieBtnClickListener {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewManager: RecyclerView.LayoutManager
-    private lateinit var viewAdapter: RecyclerView.Adapter<*>
     private var itemList = mutableListOf<RecyclerViewContainer>()
     private val headerYearsArray: ArrayList<String> = arrayListOf()
 
@@ -35,44 +33,24 @@ class HomeFragment : Fragment(R.layout.fragment_home), MovieSearchAdapter.OnItem
 
     private var searchMovieByImdbID: Movie? = null
 
-    private val handler: Handler = Handler(Looper.getMainLooper())
+    private val viewModel by activityViewModels<MovieViewModel>()
 
-    private val viewModel by viewModels<MovieViewModel>()
-
-    private var _binding: FragmentHomeBinding? = null
-    private val binding get() = _binding!!      // return nonnullable type
-
-
-
-//    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-//
-//        val viewOfLayout = inflater.inflate(R.layout.fragment_home, container, false)
-//        return viewOfLayout
-//
-//    }
-
-    companion object {
-        fun newInstance(): HomeFragment = HomeFragment()
-    }
-
-
+    private var _binding: FragmentSearchBinding? = null
+    private val binding get() = _binding!!
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentHomeBinding.bind(view)
+        _binding = FragmentSearchBinding.bind(view)
         setHasOptionsMenu(true)
 
         setData()
-
-
     }
 
     private fun setRecyclerView() {
         viewManager = LinearLayoutManager(this.context)
-        val myAdapter = MovieSearchAdapter(itemList, this)
+        val myAdapter = MovieSearchAdapter(itemList, this, this)
         myAdapter.notifyDataSetChanged()
 
-        //binding.searchRecyclerView.apply {
         recyclerView = binding.searchRecyclerView.apply {
             setHasFixedSize(true)
             layoutManager = viewManager
@@ -85,7 +63,6 @@ class HomeFragment : Fragment(R.layout.fragment_home), MovieSearchAdapter.OnItem
         viewModel.res.observe(viewLifecycleOwner) { resource ->
             when (resource.status) {
                 Status.SUCCESS -> {
-
                     resource.data?.let { movieResponse ->
                         if (movieResponse.Search.isNotEmpty()) {
                             searchMovieList = movieResponse.Search
@@ -151,14 +128,16 @@ class HomeFragment : Fragment(R.layout.fragment_home), MovieSearchAdapter.OnItem
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
 
-        inflater.inflate(R.menu.menu, menu)
+        inflater.inflate(R.menu.menu_search, menu)
 
-        val searchItem = menu.findItem(R.id.action_search)
+        val searchItem = menu.findItem(R.id.action_search2)
         val searchView = searchItem.actionView as SearchView
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
+                Log.d("querySearch", "onQueryTextSubmit ")
                 if (query != null) {
+                    Log.d("querySearch", "onQueryTextSubmit, query != null ")
                     viewModel.setQueryForSearch(query)
                     searchView.clearFocus() // it removes keyboard
                 }
@@ -166,6 +145,8 @@ class HomeFragment : Fragment(R.layout.fragment_home), MovieSearchAdapter.OnItem
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
+                Log.d("querySearch", "onQueryTextChange ")
+
                 return true
             }
         })
@@ -186,24 +167,23 @@ class HomeFragment : Fragment(R.layout.fragment_home), MovieSearchAdapter.OnItem
     override fun onItemClick(imdbID: String) {
         Log.d("movieDetails", "HomeFragment-onItemClick, imdbID: " + imdbID)
         // get movieDetails from api and show them in DetailsFragment
-        //viewModel.setImdbIDForSearch(imdbID)
-
         viewModel.getMovieDetails(imdbID)
 
         //todo this must be handled differently
         Handler(Looper.getMainLooper()).postDelayed({
             seeMovieResultFromApi()
         }, 500)
-
     }
 
     private fun seeMovieResultFromApi() {
-        Log.d("movieDetails", "HomeFragment-seeMovieResultFromApi, resMovie: " + viewModel.resMovieDetails.value)
+        Log.d(
+            "movieDetails",
+            "HomeFragment-seeMovieResultFromApi, resMovie: " + viewModel.resMovieDetails.value
+        )
         viewModel.resMovieDetails.observe(viewLifecycleOwner) { resource ->
             when (resource.status) {
                 Status.SUCCESS -> {
                     resource.data?.let { movieResponse ->
-
                         searchMovieByImdbID = movieResponse
                         Log.d(
                             "movieDetails",
@@ -230,8 +210,19 @@ class HomeFragment : Fragment(R.layout.fragment_home), MovieSearchAdapter.OnItem
 
     private fun goToDetailsFragment(movie: Movie) {
         viewModel.setImdbIDForSearch("")
-        val action = HomeFragmentDirections.actionHomeFragmentToDetailsFragment(movie)
-        Log.d("movieDetails", "HomeFragment-goToDetailsFragment, title: " + movie.Title)
-        findNavController().navigate(action)
+        val action = SearchFragmentDirections.actionSearchFragmentToDetailsFragment(movie)
+        findNavController().navigate(
+            action
+        )
     }
+
+    override fun onSaveMovieBtnClick(movie: MovieDB, save: Boolean) {
+        if (save) {
+            viewModel.insertMovie(movie)
+        } else {
+            viewModel.deleteMovie(movie)
+        }
+    }
+
+
 }

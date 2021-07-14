@@ -1,6 +1,7 @@
 package com.jkandcoding.android.favorite.database
 
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "movies")
@@ -10,5 +11,6 @@ data class MovieDB(
     @PrimaryKey
     val imdbID: String,
 ) {
+    @Ignore
     var isFavorite: Boolean = false
 }
