@@ -1,9 +1,12 @@
 package com.jkandcoding.android.favorite.ui
 
 import android.util.Log
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.jkandcoding.android.favorite.Event
 import com.jkandcoding.android.favorite.network.Movie
-import com.jkandcoding.android.favorite.database.MovieDB
 import com.jkandcoding.android.favorite.network.MovieRepository
 import com.jkandcoding.android.favorite.network.MovieResponse
 import com.jkandcoding.android.favorite.other.Resource
@@ -18,15 +21,19 @@ class MovieViewModel @Inject constructor(
     private val repository: MovieRepository
 ) : ViewModel() {
 
+
+
     private var titleToSearch: String = ""
     private var imdbIDToSearch: String = ""
+
+    private var imdbIDToSearchDb = ""
 
     private val _res = MutableLiveData<Resource<MovieResponse>>()
     val res: LiveData<Resource<MovieResponse>>
         get() = _res
 
-    private var _resMovieDetails = MutableLiveData<Resource<Movie>>()
-    val resMovieDetails: LiveData<Resource<Movie>>
+    private var _resMovieDetails = MutableLiveData<Event<Resource<Movie>>>()
+    val resMovieDetails: LiveData<Event<Resource<Movie>>>
         get() = _resMovieDetails
 
 
@@ -56,16 +63,16 @@ class MovieViewModel @Inject constructor(
     fun getMovieDetails(imdbId: String) = viewModelScope.launch {
         Log.d("movieDetails", "VIEWMODEL, resMovie: " + resMovieDetails.value)
         try {
-            _resMovieDetails.postValue(Resource.loading(null))
+            _resMovieDetails.postValue(Event(Resource.loading(null)))
             repository.getMovieByImdbID(imdbId).let {
                 if (it.isSuccessful) {
-                    _resMovieDetails.postValue(Resource.success(it.body()))
+                    _resMovieDetails.postValue(Event(Resource.success(it.body())))
                 } else {
-                    _resMovieDetails.postValue(Resource.error(it.raw().message(), null))
+                    _resMovieDetails.postValue(Event(Resource.error(it.raw().message(), null)))
                 }
             }
         } catch (e: IOException) {
-            _resMovieDetails.postValue(Resource.error(e.localizedMessage, null))
+            _resMovieDetails.postValue(Event(Resource.error(e.localizedMessage, null)))
             e.printStackTrace()
         }
 
@@ -83,17 +90,31 @@ class MovieViewModel @Inject constructor(
 
 //-----------DATABASE---------
 
+private val _isMovieInDb = MutableLiveData<Boolean>()
+     val isMovieInDb: LiveData<Boolean>
+    get() = _isMovieInDb
+
+
     // insert favorite movie to room database
-    fun insertMovie(movie: MovieDB) = viewModelScope.launch {
+    fun insertMovie(movie: Movie) = viewModelScope.launch {
         repository.insert(movie)
     }
 
     // delete favorite movie from room database
-    fun deleteMovie(movie: MovieDB) = viewModelScope.launch {
+    fun deleteMovie(movie: Movie) = viewModelScope.launch {
         repository.delete(movie)
     }
 
+    val favMovies: LiveData<List<Movie>> = repository.favoriteMovies
 
-    val favMovies: LiveData<List<MovieDB>> = repository.favoriteMovies
+
+    fun checkIfMovieIsInDb(imdbID: String) = viewModelScope.launch {
+        repository.isMovieInDb(imdbID)
+        if (repository.isMovieInDb(imdbID) > 0) {
+            _isMovieInDb.postValue(true)
+        } else {
+            _isMovieInDb.postValue(false)
+        }
+    }
 
 }

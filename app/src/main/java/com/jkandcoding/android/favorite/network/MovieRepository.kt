@@ -14,7 +14,7 @@ class MovieRepository @Inject constructor(
     private val favoriteApi: FavoriteApi,
     private val movieDao: MovieDao
 ) {
-     suspend fun getMoviesByTitle(title: String): Response<MovieResponse> {
+    suspend fun getMoviesByTitle(title: String): Response<MovieResponse> {
         val responseMovie: Response<MovieResponse> = favoriteApi.searchMoviesByTitle(title)
         Log.d("responseMovie", "Repository - response from api: " + responseMovie)
         return responseMovie
@@ -27,18 +27,19 @@ class MovieRepository @Inject constructor(
     }
 
 
-    val favoriteMovies: LiveData<List<MovieDB>> = movieDao.selectAllFavorites()
+   val favoriteMovies: LiveData<List<Movie>> = movieDao.selectAllFavorites()
 
     @WorkerThread
-    suspend fun insert(movie: MovieDB) {
+    suspend fun insert(movie: Movie) {
         movieDao.insertMoview(movie)
     }
 
     @WorkerThread
-    suspend fun delete(movie: MovieDB) {
+    suspend fun delete(movie: Movie) {
         movieDao.deleteMovie(movie)
     }
 
-
+@WorkerThread
+   suspend fun isMovieInDb(imdbID: String): Int = movieDao.isMovieInDb(imdbID)
 
 }

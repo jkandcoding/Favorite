@@ -20,6 +20,7 @@ import com.jkandcoding.android.favorite.databinding.FragmentSearchBinding
 import com.jkandcoding.android.favorite.network.Movie
 import com.jkandcoding.android.favorite.other.Status
 import com.jkandcoding.android.favorite.ui.MovieViewModel
+import com.jkandcoding.android.favorite.ui.home.HomeFragment
 
 class SearchFragment : Fragment(R.layout.fragment_search), MovieSearchAdapter.OnItemClickListener,
     MovieSearchAdapter.OnSaveMovieBtnClickListener {
@@ -40,6 +41,12 @@ class SearchFragment : Fragment(R.layout.fragment_search), MovieSearchAdapter.On
 
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
+
+    companion object {
+        fun newInstance(): HomeFragment = HomeFragment()
+        private const val SAVE = "save"
+        private const val SHOW = "show"
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -87,7 +94,11 @@ class SearchFragment : Fragment(R.layout.fragment_search), MovieSearchAdapter.On
                             // empty list from API
                         } else {
                             Log.d("responseMovie", "HomeFragment - SUCCESS but empty list")
-                            Snackbar.make(binding.root, "Empty response, no data here " + resource.message, Snackbar.LENGTH_SHORT).show()
+                            Snackbar.make(
+                                binding.root,
+                                "Empty response, no data here " + resource.message,
+                                Snackbar.LENGTH_SHORT
+                            ).show()
                         }
                     }
                 }
@@ -108,6 +119,7 @@ class SearchFragment : Fragment(R.layout.fragment_search), MovieSearchAdapter.On
                 }
             }
         }
+
     }
 
     private fun setAdapterListWithMoviesAndHeaders() {
@@ -164,7 +176,7 @@ class SearchFragment : Fragment(R.layout.fragment_search), MovieSearchAdapter.On
     override fun onResume() {
         super.onResume()
         setAdapterListWithMoviesAndHeaders()
-        Log.d("movieDetails", "onResume " + itemList.size)
+        Log.d("movieDetails", "SearchFragment - onResume " + itemList.size)
         setRecyclerView()
     }
 
@@ -174,69 +186,91 @@ class SearchFragment : Fragment(R.layout.fragment_search), MovieSearchAdapter.On
     }
 
     override fun onItemClick(imdbID: String) {
-        Log.d("movieDetails", "HomeFragment-onItemClick, imdbID: " + imdbID)
+        getAllMovieDataFromApi(imdbID, SHOW)
+
+        // todo ovo nize je null
+//        searchMovieByImdbID?.let { goToDetailsFragment(it) }
+//        searchMovieByImdbID = null
+    }
+
+    private fun getAllMovieDataFromApi(imdbID: String, saveOrShow: String) {
+        Log.d("movieDetails", "SearchFragment-onItemClick, imdbID: " + imdbID)
         // get movieDetails from api and show them in DetailsFragment
         viewModel.getMovieDetails(imdbID)
 
         //todo this must be handled differently
+        //this sets searchMovieByImdbID variable
         Handler(Looper.getMainLooper()).postDelayed({
-            seeMovieResultFromApi()
+            seeMovieResultFromApi(saveOrShow)
         }, 500)
     }
 
-    private fun seeMovieResultFromApi() {
+    private fun seeMovieResultFromApi(saveOrShow: String) {
         Log.d(
             "movieDetails",
-            "HomeFragment-seeMovieResultFromApi, resMovie: " + viewModel.resMovieDetails.value
+            "SearchFragment-seeMovieResultFromApi, resMovie: " + viewModel.resMovieDetails.value
         )
-        viewModel.resMovieDetails.observe(viewLifecycleOwner) { resource ->
-            when (resource.status) {
-                Status.SUCCESS -> {
-                    binding.pbSearchSearchProgressBar.visibility = View.GONE
-                    resource.data?.let { movieResponse ->
-                        searchMovieByImdbID = movieResponse
-                        Log.d(
-                            "movieDetails",
-                            "HomeFragment - SUCCESS - searchMovieDetails: " + searchMovieByImdbID!!.Title
-                        )
-                        searchMovieByImdbID?.let { goToDetailsFragment(it) }
-
+        viewModel.resMovieDetails.observe(viewLifecycleOwner) {
+            it.getContentIfNotHandled()?.let { resource ->
+                when (resource.status) {
+                    Status.SUCCESS -> {
+                        binding.pbSearchSearchProgressBar.visibility = View.GONE
+                        resource.data?.let { movieResponse ->
+                            searchMovieByImdbID = movieResponse
+                            Log.d(
+                                "movieDetails",
+                                "SearchFragment - SUCCESS - searchMovieDetails: " + searchMovieByImdbID!!.Title
+                            )
+                            if (saveOrShow == SAVE) {
+                                viewModel.insertMovie(searchMovieByImdbID!!)
+                            } else {
+                                goToDetailsFragment(searchMovieByImdbID!!)
+                            }
+                            Log.d("movieDetails", "SearchFragment-SHOW/SEND!!! - searchMovieByImdbID.title: " + searchMovieByImdbID!!.Title)
+                        }
                     }
-                }
-                Status.LOADING -> {
-                    Log.d("movieDetails", "HomeFragment-searchMovieDetails - LOADING...")
-                    binding.pbSearchSearchProgressBar.visibility = View.VISIBLE
-                }
-                Status.ERROR -> {
-                    binding.pbSearchSearchProgressBar.visibility = View.GONE
-                    Snackbar.make(
-                        binding.root,
-                        "Can't get movie details, " + resource.message,
-                        Snackbar.LENGTH_SHORT
-                    ).show()
-                    Log.d("movieDetails", "HomeFragment - ERROR: " + resource.message)
+                    Status.LOADING -> {
+                        Log.d("movieDetails", "SearchFragment-searchMovieDetails - LOADING...")
+                        binding.pbSearchSearchProgressBar.visibility = View.VISIBLE
+                    }
+                    Status.ERROR -> {
+                        binding.pbSearchSearchProgressBar.visibility = View.GONE
+                        Snackbar.make(
+                            binding.root,
+                            "Can't get movie details, " + resource.message,
+                            Snackbar.LENGTH_SHORT
+                        ).show()
+                        Log.d("movieDetails", "SearchFragment - ERROR: " + resource.message)
+                    }
                 }
             }
         }
     }
 
     private fun goToDetailsFragment(movie: Movie) {
-      //  viewModel.setImdbIDForSearch("")
-        val action = SearchFragmentDirections.actionSearchFragmentToDetailsFragment(movie, movie.Title)
-        findNavController().navigate(
-            action
-        )
+        val action =
+            SearchFragmentDirections.actionSearchFragmentToDetailsFragment(movie, movie.Title)
+        findNavController().navigate(action)
     }
 
     override fun onSaveMovieBtnClick(movies: List<MovieDB>) {
         movieListForSave = movies
+        for (movie in movieListForSave) {
+            Log.d(
+                "favButton",
+                "SearchFragment - onSaveMovieBtnClick, movieListForSave: " + movie.Title
+            )
+
+            // search for movieDetails for every movie inside movieListForSave and save to DB
+            getAllMovieDataFromApi(movie.imdbID, SAVE)
+
+
+            // todo ovo nize je null
+            // searchMovieByImdbID?.let { viewModel.insertMovie(it) }
+
+
+        }
     }
 
-    override fun onPause() {
-        super.onPause()
-              for (movie in movieListForSave) {
-                  Log.d("favButton", "SesrchFragment - onPause, movieListForSave: " + movie.Title)
-          viewModel.insertMovie(movie)
-      }
-    }
+
 }

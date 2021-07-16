@@ -5,6 +5,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="200dp"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
     app:cardElevation="5dp"
     app:cardUseCompatPadding="true"
     app:cardCornerRadius="10dp"
@@ -36,11 +39,11 @@
             android:textColor="@color/black"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@+id/iv_favorite_favBtn"
+            app:layout_constraintEnd_toStartOf="@+id/iBtn_favorite_favBtn"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintHorizontal_weight="2"
             app:layout_constraintStart_toEndOf="@+id/iv_favorite_poster"
-            app:layout_constraintTop_toTopOf="@+id/iv_favorite_favBtn"
+            app:layout_constraintTop_toTopOf="@+id/iBtn_favorite_favBtn"
             tools:layout_editor_absoluteY="10dp"
             tools:text="The Avengers" />
 
@@ -53,8 +56,8 @@
             tools:text="2012"
             android:layout_marginTop="10dp" />
 
-        <ImageView
-            android:id="@+id/iv_favorite_favBtn"
+        <ImageButton
+            android:id="@+id/iBtn_favorite_favBtn"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_marginTop="10dp"
@@ -62,17 +65,6 @@
             android:background="@drawable/ic_heart_on_24"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageButton
-            android:id="@+id/iBtn_favorite_deleteBtn"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginBottom="10dp"
-            android:layout_marginEnd="10dp"
-            android:background="@drawable/ic_close_24"
-             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

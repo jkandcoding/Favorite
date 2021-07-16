@@ -10,6 +10,7 @@ import androidx.annotation.IdRes
 import androidx.recyclerview.widget.RecyclerView
 import com.jkandcoding.android.favorite.R
 import com.jkandcoding.android.favorite.database.MovieDB
+import com.jkandcoding.android.favorite.databinding.ItemSearchMovieBinding
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
@@ -55,7 +56,6 @@ class MovieSearchAdapter(
             item: MovieDB,
             @IdRes textViewId: Int,
             @IdRes toggleBtnId: Int,
-            position: Int
         ) {
             //todo set onclicklistener on button inside item
             val textView = (viewMap[textViewId]
@@ -89,12 +89,8 @@ class MovieSearchAdapter(
                 saveMovieListener.onSaveMovieBtnClick(savedMovies)
                 Log.d("favButton", "setOnCheckedChangeListener, savedMovies: " + savedMovies)
             }
-
-
-        }
-
-
-    }
+      }
+   }
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
@@ -115,7 +111,7 @@ class MovieSearchAdapter(
                 holder.setHeader(R.id.tv_header_year, item.headerYear!!)
             }
         } else {
-            holder.setItems(item.movie!!, R.id.tv_search_title, R.id.tb_search_toggleBtn, position)
+            holder.setItems(item.movie!!, R.id.tv_search_title, R.id.tb_search_toggleBtn)
         }
 
         holder.itemView.setOnClickListener {

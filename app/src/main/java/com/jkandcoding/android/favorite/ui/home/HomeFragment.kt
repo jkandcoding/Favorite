@@ -1,6 +1,5 @@
 package com.jkandcoding.android.favorite.ui.home
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -14,13 +13,13 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.jkandcoding.android.favorite.R
-import com.jkandcoding.android.favorite.database.MovieDB
 import com.jkandcoding.android.favorite.databinding.FragmentHomeBinding
+import com.jkandcoding.android.favorite.network.Movie
 import com.jkandcoding.android.favorite.ui.MovieViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class HomeFragment : Fragment(R.layout.fragment_home), MovieFavoriteAdapter.OnDeleteBtnClickListener {
+class HomeFragment : Fragment(R.layout.fragment_home), MovieFavoriteAdapter.OnDeleteBtnClickListener, MovieFavoriteAdapter.OnFavoriteItemClickListener {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewManager: RecyclerView.LayoutManager
@@ -30,9 +29,9 @@ class HomeFragment : Fragment(R.layout.fragment_home), MovieFavoriteAdapter.OnDe
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!      // return nonnullable type
 
-//    companion object {
-//        fun newInstance(): HomeFragment = HomeFragment()
-//    }
+    companion object {
+        fun newInstance(): HomeFragment = HomeFragment()
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -40,8 +39,6 @@ class HomeFragment : Fragment(R.layout.fragment_home), MovieFavoriteAdapter.OnDe
         setHasOptionsMenu(true)
 
         getFavoriteMoviesFromDb()
-
-
     }
 
     private fun getFavoriteMoviesFromDb() {
@@ -64,9 +61,9 @@ class HomeFragment : Fragment(R.layout.fragment_home), MovieFavoriteAdapter.OnDe
         }
     }
 
-    private fun setRecyclerView(favMovies: List<MovieDB>) {
+    private fun setRecyclerView(favMovies: List<Movie>) {
         viewManager = LinearLayoutManager(this.context)
-        val myAdapter = MovieFavoriteAdapter(favMovies, this)
+        val myAdapter = MovieFavoriteAdapter(favMovies, this, this)
         myAdapter.notifyDataSetChanged()
 
             recyclerView = binding.homeRecyclerView.apply {
@@ -112,12 +109,12 @@ class HomeFragment : Fragment(R.layout.fragment_home), MovieFavoriteAdapter.OnDe
         _binding = null
     }
 
-    override fun onDeleteClick(deleteMovie: MovieDB) {
+    override fun onDeleteClick(deleteMovie: Movie) {
         val dialogBuilder = AlertDialog.Builder(requireContext())
         dialogBuilder.setMessage("Do you want to delete this movie?")
             .setCancelable(false)
             // positive button text and action
-            .setPositiveButton("Proceed") { _, _ ->
+            .setPositiveButton("Yes") { _, _ ->
                 viewModel.deleteMovie(deleteMovie)
             }
             // negative button text and action
@@ -127,6 +124,11 @@ class HomeFragment : Fragment(R.layout.fragment_home), MovieFavoriteAdapter.OnDe
         val alert = dialogBuilder.create()
         alert.show()
 
+    }
+
+    override fun onFavItemClick(movie: Movie) {
+        val action = HomeFragmentDirections.actionHomeFragmentToDetailsFragment(movie, movie.Title)
+        findNavController().navigate(action)
     }
 
 
