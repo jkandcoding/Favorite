@@ -18,7 +18,8 @@
             android:id="@+id/iv_favorite_poster"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:background="@android:drawable/ic_menu_slideshow"
+            android:background="@drawable/pulp_poster"
+            android:scaleType="center"
             app:layout_constraintEnd_toStartOf="@+id/tv_favorite_title"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintHorizontal_weight="1"
@@ -39,7 +40,8 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintHorizontal_weight="2"
             app:layout_constraintStart_toEndOf="@+id/iv_favorite_poster"
-            app:layout_constraintTop_toTopOf="@+id/iv_favorite_favBtn" tools:layout_editor_absoluteY="10dp"
+            app:layout_constraintTop_toTopOf="@+id/iv_favorite_favBtn"
+            tools:layout_editor_absoluteY="10dp"
             tools:text="The Avengers" />
 
         <TextView
@@ -58,10 +60,18 @@
             android:layout_marginTop="10dp"
             android:layout_marginEnd="10dp"
             android:background="@drawable/ic_heart_on_24"
-            android:textOff=""
-            android:textOn=""
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/iBtn_favorite_deleteBtn"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/ic_close_24"
+             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

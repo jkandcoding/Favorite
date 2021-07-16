@@ -3,12 +3,16 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
     android:layout_width="match_parent"
     android:layout_height="200dp"
     app:cardElevation="5dp"
     app:cardUseCompatPadding="true"
     app:cardCornerRadius="10dp"
-    android:layout_marginBottom="10dp">
+    android:layout_marginBottom="10dp"
+    >
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -19,10 +23,10 @@
             android:id="@+id/iv_search_poster"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:background="@android:drawable/ic_menu_slideshow"
+            android:background="@drawable/pulp_poster"
             app:layout_constraintEnd_toStartOf="@+id/tv_search_title"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintHorizontal_weight="1.2"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 

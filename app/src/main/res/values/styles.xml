@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="ImdbChip" parent="Widget.MaterialComponents.Chip.Choice">
+        <item name="chipCornerRadius">4dp</item>
+        <item name="android:padding">2dp</item>
+        <item name="textStartPadding">0dp</item>
+        <item name="textEndPadding">2dp</item>
+        <item name="chipEndPadding">2dp</item>
+        <item name="android:elevation">4dp</item>
+        <item name="chipIconEnabled">false</item>
+        <item name="checkedIconEnabled">false</item>
+        <item name="closeIconEnabled">false</item>
+        <item name="android:clickable">false</item>
+        <item name="chipBackgroundColor">@color/yellow</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="chipMinHeight">18dp</item>
+        <item name="android:textStyle">bold</item>
+
+    </style>
+</resources>

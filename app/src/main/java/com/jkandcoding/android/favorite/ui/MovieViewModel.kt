@@ -10,6 +10,7 @@ import com.jkandcoding.android.favorite.other.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.io.IOException
+import java.net.UnknownHostException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,22 +29,26 @@ class MovieViewModel @Inject constructor(
     val resMovieDetails: LiveData<Resource<Movie>>
         get() = _resMovieDetails
 
-//    private var _favoriteMovies = MutableLiveData<List<MovieDB>>()
-//    val favoriteMovies: LiveData<List<MovieDB>>
-//        get() = _favoriteMovies
 
     private fun getMovies(title: String) = viewModelScope.launch {
         try {
             _res.postValue(Resource.loading(null))
             repository.getMoviesByTitle(title).let {
                 if (it.isSuccessful) {
-                    _res.postValue(Resource.success(it.body()))
+                    if (it.body()?.Response == "True") {
+                        _res.postValue(Resource.success(it.body()))
+                    } else {
+                        _res.postValue(it.body()?.Error?.let { errorMsg ->
+                            Resource.error(errorMsg, null) })
+                        Log.d("responseMovie", "ViewModel - ERROR: " + it.body())
+                    }
                 } else {
                     _res.postValue(Resource.error(it.raw().message(), null))
                 }
             }
-        } catch (e: IOException) {
-            _res.postValue(Resource.error(e.localizedMessage, null))
+        } catch (e: UnknownHostException) {
+            _res.postValue(e.message?.let {
+                Resource.error(it, null) })
             e.printStackTrace()
         }
     }
@@ -87,8 +92,6 @@ class MovieViewModel @Inject constructor(
     fun deleteMovie(movie: MovieDB) = viewModelScope.launch {
         repository.delete(movie)
     }
-
-
 
 
     val favMovies: LiveData<List<MovieDB>> = repository.favoriteMovies

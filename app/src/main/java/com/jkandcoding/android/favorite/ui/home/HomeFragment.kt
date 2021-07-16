@@ -1,10 +1,12 @@
 package com.jkandcoding.android.favorite.ui.home
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -18,7 +20,7 @@ import com.jkandcoding.android.favorite.ui.MovieViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class HomeFragment : Fragment(R.layout.fragment_home) {
+class HomeFragment : Fragment(R.layout.fragment_home), MovieFavoriteAdapter.OnDeleteBtnClickListener {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewManager: RecyclerView.LayoutManager
@@ -43,14 +45,28 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun getFavoriteMoviesFromDb() {
-        viewModel.favMovies.observe(viewLifecycleOwner) {
-            setRecyclerView(it)
+        viewModel.favMovies.observe(viewLifecycleOwner) { moviesFromDB ->
+            if (moviesFromDB.isNotEmpty()) {
+                setRecyclerView(moviesFromDB)
+                binding.apply {
+                    tvEmptyTitle.visibility = View.GONE
+                    tvEmptyDescription.visibility = View.GONE
+                    ivEmptyImage.visibility = View.GONE
+                }
+            } else {
+                binding.apply {
+                    homeRecyclerView.visibility = View.GONE
+                    tvEmptyTitle.visibility = View.VISIBLE
+                    tvEmptyDescription.visibility = View.VISIBLE
+                    ivEmptyImage.visibility = View.VISIBLE
+                }
+            }
         }
     }
 
     private fun setRecyclerView(favMovies: List<MovieDB>) {
         viewManager = LinearLayoutManager(this.context)
-        val myAdapter = MovieFavoriteAdapter(favMovies)
+        val myAdapter = MovieFavoriteAdapter(favMovies, this)
         myAdapter.notifyDataSetChanged()
 
             recyclerView = binding.homeRecyclerView.apply {
@@ -74,7 +90,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 if (query != null) {
                     viewModel.setQueryForSearch(query)
                     searchView.clearFocus() // it removes keyboard
-                    goToSearchFragment()
+                    goToSearchFragment(query)
                 }
                 return true
             }
@@ -86,8 +102,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         })
     }
 
-    private fun goToSearchFragment() {
-        val action = HomeFragmentDirections.actionHomeFragmentToSearchFragment()
+    private fun goToSearchFragment(query: String) {
+        val action = HomeFragmentDirections.actionHomeFragmentToSearchFragment(query)
         findNavController().navigate(action)
     }
 
@@ -96,7 +112,22 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         _binding = null
     }
 
+    override fun onDeleteClick(deleteMovie: MovieDB) {
+        val dialogBuilder = AlertDialog.Builder(requireContext())
+        dialogBuilder.setMessage("Do you want to delete this movie?")
+            .setCancelable(false)
+            // positive button text and action
+            .setPositiveButton("Proceed") { _, _ ->
+                viewModel.deleteMovie(deleteMovie)
+            }
+            // negative button text and action
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.cancel()
+            }
+        val alert = dialogBuilder.create()
+        alert.show()
 
+    }
 
 
 }

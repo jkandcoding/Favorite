@@ -9,7 +9,7 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.jkandcoding.android.favorite.ui.home.HomeFragment"
-        android:label="Home Fragment"
+        android:label="Favorites"
         tools:layout="@layout/fragment_home">
         <action
             android:id="@+id/action_homeFragment_to_searchFragment"
@@ -18,18 +18,24 @@
     <fragment
         android:id="@+id/detailsFragment"
         android:name="com.jkandcoding.android.favorite.ui.details.DetailsFragment"
-        android:label="Details Fragment">
+        android:label="{movieTitle}">
         <argument
             android:name="movieDetails"
             app:argType="com.jkandcoding.android.favorite.network.Movie" />
+        <argument
+            android:name="movieTitle"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/searchFragment"
         android:name="com.jkandcoding.android.favorite.ui.search.SearchFragment"
-        android:label="Search Fragment"
+        android:label="{queryTitle}"
         tools:layout="@layout/fragment_search">
         <action
             android:id="@+id/action_searchFragment_to_detailsFragment"
             app:destination="@id/detailsFragment" />
+        <argument
+            android:name="queryTitle"
+            app:argType="string" />
     </fragment>
 </navigation>

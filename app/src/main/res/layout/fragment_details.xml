@@ -1,131 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+<ScrollView android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="10dp"
-    tools:context=".ui.details.DetailsFragment">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <ImageView
-        android:id="@+id/iv_details_poster"
-        android:layout_width="0dp"
-        android:layout_height="200dp"
-        android:layout_marginBottom="10dp"
-        android:background="@android:drawable/ic_menu_slideshow"
-        app:layout_constraintEnd_toStartOf="@+id/hsv_scrollView_cg"
-        app:layout_constraintHorizontal_weight="1"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/v_details_line"
-         />
-
-    <HorizontalScrollView
-        android:id="@+id/hsv_scrollView_cg"
-        android:layout_width="0dp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        app:layout_constraintBottom_toBottomOf="@+id/iv_details_poster"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_weight="2"
-        app:layout_constraintStart_toEndOf="@+id/iv_details_poster">
+        android:padding="10dp"
+        tools:context=".ui.details.DetailsFragment">
+
+        <ImageView
+            android:id="@+id/iv_details_poster"
+            android:layout_width="0dp"
+            android:layout_height="200dp"
+            android:layout_marginBottom="20dp"
+             android:background="@drawable/pulp_poster"
+            android:scaleType="centerCrop"
+            app:layout_constraintBottom_toTopOf="@id/v_details_line"
+            app:layout_constraintEnd_toStartOf="@+id/cg_details_chipGroup"
+            app:layout_constraintHorizontal_weight="1.2"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/cg_details_chipGroup"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            app:chipSpacingHorizontal="4dp"
+            app:chipSpacingVertical="4dp"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_details_poster"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="2"
+            app:layout_constraintStart_toEndOf="@+id/iv_details_poster" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip_details_imdbLabel"
+            style="@style/ImdbChip"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:text="IMDb"
+            app:layout_constraintBottom_toTopOf="@+id/cg_details_chipGroup"
+            app:layout_constraintStart_toStartOf="@+id/cg_details_chipGroup" />
 
+        <TextView
+            android:id="@+id/tv_details_imdbRating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textColor="@color/black"
+            app:layout_constraintBottom_toBottomOf="@id/chip_details_imdbLabel"
+            app:layout_constraintStart_toEndOf="@id/chip_details_imdbLabel"
+            app:layout_constraintTop_toTopOf="@id/chip_details_imdbLabel"
+            tools:text="8.8/10" />
 
-    </HorizontalScrollView>
+        <TextView
+            android:id="@+id/tv_details_released"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            app:layout_constraintBottom_toTopOf="@id/chip_details_imdbLabel"
+            app:layout_constraintStart_toStartOf="@id/chip_details_imdbLabel"
+            tools:text="04 May 2012" />
 
-    <com.google.android.material.chip.Chip
-        android:id="@+id/chip_details_imdbLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:elevation="4dp"
-        android:padding="8dp"
-        android:text="IMDb"
-        android:textColor="@color/black"
-        android:textStyle="bold"
-        app:chipBackgroundColor="@color/yellow"
-        app:chipCornerRadius="4dp"
-        app:chipIconEnabled="false"
-        app:closeIconEnabled="false"
-        app:layout_constraintBottom_toTopOf="@+id/hsv_scrollView_cg"
-        app:layout_constraintStart_toStartOf="@+id/hsv_scrollView_cg" />
+        <View
+            android:id="@+id/v_details_dot"
+            android:layout_width="2dp"
+            android:layout_height="2dp"
+            android:layout_marginStart="8dp"
+            android:background="@color/grey_dark"
+            app:layout_constraintBottom_toBottomOf="@id/tv_details_released"
+            app:layout_constraintStart_toEndOf="@id/tv_details_released"
+            app:layout_constraintTop_toTopOf="@id/tv_details_released" />
 
-    <TextView
-        android:id="@+id/tv_details_imdbRating"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:textColor="@color/black"
-        app:layout_constraintBottom_toBottomOf="@id/chip_details_imdbLabel"
-        app:layout_constraintStart_toEndOf="@id/chip_details_imdbLabel"
-        app:layout_constraintTop_toTopOf="@id/chip_details_imdbLabel"
-        tools:text="8.8/10" />
+        <TextView
+            android:id="@+id/tv_details_runtime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            app:layout_constraintBottom_toBottomOf="@id/tv_details_released"
+            app:layout_constraintStart_toEndOf="@id/v_details_dot"
+            app:layout_constraintTop_toTopOf="@id/tv_details_released"
+            tools:text="2h 23 min" />
 
-    <TextView
-        android:id="@+id/tv_details_released"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        app:layout_constraintBottom_toTopOf="@id/chip_details_imdbLabel"
-        app:layout_constraintStart_toStartOf="@id/chip_details_imdbLabel"
-        tools:text="04 May 2012" />
+        <TextView
+            android:id="@+id/tv_details_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintBottom_toTopOf="@id/tv_details_released"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@id/tv_details_released"
+            tools:text="The Avengers" />
 
-    <View
-        android:id="@+id/v_details_dot"
-        android:layout_width="2dp"
-        android:layout_height="2dp"
-        android:layout_marginStart="8dp"
-        android:background="@color/grey_dark"
-        app:layout_constraintBottom_toBottomOf="@id/tv_details_released"
-        app:layout_constraintStart_toEndOf="@id/tv_details_released"
-        app:layout_constraintTop_toTopOf="@id/tv_details_released" />
+        <View
+            android:id="@+id/v_details_line"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@color/grey"
+            app:layout_constraintTop_toBottomOf="@id/cg_details_chipGroup"
+            tools:layout_editor_absoluteX="3dp" />
 
-    <TextView
-        android:id="@+id/tv_details_runtime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        app:layout_constraintBottom_toBottomOf="@id/tv_details_released"
-        app:layout_constraintStart_toEndOf="@id/v_details_dot"
-        app:layout_constraintTop_toTopOf="@id/tv_details_released"
-        tools:text="2h 23 min" />
+        <TextView
+            android:id="@+id/tv_details_plot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/v_details_line"
+            tools:text="Some plot about the movie goes here..." />
 
-    <TextView
-        android:id="@+id/tv_details_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:ellipsize="end"
-        android:maxLines="4"
-        android:textColor="@color/black"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@id/tv_details_released"
-        app:layout_constraintStart_toStartOf="@id/tv_details_released"
-        tools:text="The Avengers" />
-
-    <View
-        android:id="@+id/v_details_line"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:layout_marginTop="20dp"
-        android:background="@color/grey"
-        app:layout_constraintTop_toBottomOf="@id/hsv_scrollView_cg" />
-
-    <TextView
-        android:id="@+id/tv_details_plot"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:textColor="@color/black"
-        android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/v_details_line"
-        tools:text="Some plot about the movie goes here..." />
-
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

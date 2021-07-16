@@ -25,7 +25,7 @@ class DetailsFragment : Fragment(R.layout.fragment_details) {
             if (genres != null) {
                 for (genre in genres)  {
                     val chip = LayoutInflater.from(context).inflate(R.layout.chip_genre, null) as Chip
-                    chip.text = genre
+                    chip.text = genre.trim()
                     cgDetailsChipGroup.addView(chip)
                 }
             }

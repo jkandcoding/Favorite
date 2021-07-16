@@ -70,24 +70,24 @@ class MovieSearchAdapter(
             toggleBtnView.setOnCheckedChangeListener(null)
 
             toggleBtnView.isChecked = item.isFavorite
-            Log.d("favButton", "set-aj prije klika, ovaj je favorite: " + item.isFavorite)
 
             toggleBtnView.setOnCheckedChangeListener { _, b ->
+
                 if (item.isFavorite) {
                     toggleBtnView.isChecked = false
-                    Log.d("favButton", "setOnCheckedChangeListener, wasFavorite ")
                     item.isFavorite = false
                     // delete movie
-                    saveMovieListener.onSaveMovieBtnClick(item, false)
-                    // savedMovies.remove(item)
+                   // saveMovieListener.onSaveMovieBtnClick(item, false)
+                     savedMovies.remove(item)
                 } else {
                     toggleBtnView.isChecked = true
-                    Log.d("favButton", "setOnCheckedChangeListener, wasNotFavorite ")
                     item.isFavorite = true
                     // save movie
-                    saveMovieListener.onSaveMovieBtnClick(item, true)
-                    // savedMovies.add(item)
+                   // saveMovieListener.onSaveMovieBtnClick(item, true)
+                    savedMovies.add(item)
                 }
+                saveMovieListener.onSaveMovieBtnClick(savedMovies)
+                Log.d("favButton", "setOnCheckedChangeListener, savedMovies: " + savedMovies)
             }
 
 
@@ -144,6 +144,6 @@ class MovieSearchAdapter(
     }
 
     interface OnSaveMovieBtnClickListener {
-        fun onSaveMovieBtnClick(movie: MovieDB, save: Boolean)
+        fun onSaveMovieBtnClick(movies: List<MovieDB>)
     }
 }
