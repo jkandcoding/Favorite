@@ -2,16 +2,18 @@ package com.jkandcoding.android.favorite.database
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import com.jkandcoding.android.favorite.network.Movie
 
 @Dao
 interface MovieDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertMoview(movieDB: Movie)
+    suspend fun insertMoview(movie: Movie)
 
     @Delete
-    suspend fun deleteMovie(movieDB: Movie)
+    suspend fun deleteMovie(movie: Movie)
+
+    @Query("DELETE FROM movies WHERE imdbID = :imdbID")
+    suspend fun deleteMovieWithIMDBID(imdbID: String)
 
     @Query("SELECT * FROM movies")
     fun selectAllFavorites(): LiveData<List<Movie>>

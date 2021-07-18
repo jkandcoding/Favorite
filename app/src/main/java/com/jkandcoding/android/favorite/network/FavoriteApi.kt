@@ -2,6 +2,7 @@ package com.jkandcoding.android.favorite.network
 
 
 import com.jkandcoding.android.favorite.BuildConfig
+import com.jkandcoding.android.favorite.database.Movie
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query

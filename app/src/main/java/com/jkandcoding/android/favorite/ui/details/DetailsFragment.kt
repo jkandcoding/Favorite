@@ -10,7 +10,7 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.snackbar.Snackbar
 import com.jkandcoding.android.favorite.R
 import com.jkandcoding.android.favorite.databinding.FragmentDetailsBinding
-import com.jkandcoding.android.favorite.network.Movie
+import com.jkandcoding.android.favorite.database.Movie
 import com.jkandcoding.android.favorite.ui.MovieViewModel
 
 class DetailsFragment : Fragment(R.layout.fragment_details) {

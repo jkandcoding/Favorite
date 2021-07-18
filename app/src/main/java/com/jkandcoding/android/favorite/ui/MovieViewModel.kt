@@ -5,8 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jkandcoding.android.favorite.Event
-import com.jkandcoding.android.favorite.network.Movie
+import com.jkandcoding.android.favorite.network.ConnectivityCheckingInterceptor
+import com.jkandcoding.android.favorite.database.Movie
 import com.jkandcoding.android.favorite.network.MovieRepository
 import com.jkandcoding.android.favorite.network.MovieResponse
 import com.jkandcoding.android.favorite.other.Resource
@@ -21,22 +21,27 @@ class MovieViewModel @Inject constructor(
     private val repository: MovieRepository
 ) : ViewModel() {
 
+    //-------------- OMDB API ----------------------
+
+    // movies in SearchFragment marked as "Favorites"
+ //   var searchMoviesForSave: ArrayList<MovieDB>? = arrayListOf()
+    var favMoviesHelper: List<Movie>? = repository.favoriteMovies.value
 
 
     private var titleToSearch: String = ""
     private var imdbIDToSearch: String = ""
 
-    private var imdbIDToSearchDb = ""
-
     private val _res = MutableLiveData<Resource<MovieResponse>>()
     val res: LiveData<Resource<MovieResponse>>
         get() = _res
 
-    private var _resMovieDetails = MutableLiveData<Event<Resource<Movie>>>()
-    val resMovieDetails: LiveData<Event<Resource<Movie>>>
+    private var _resMovieDetails = MutableLiveData<Resource<Movie>>()
+    val resMovieDetails: LiveData<Resource<Movie>>
         get() = _resMovieDetails
 
 
+
+    // get list of movies from omdbApi searched with title
     private fun getMovies(title: String) = viewModelScope.launch {
         try {
             _res.postValue(Resource.loading(null))
@@ -53,36 +58,44 @@ class MovieViewModel @Inject constructor(
                     _res.postValue(Resource.error(it.raw().message(), null))
                 }
             }
+        } catch (e: ConnectivityCheckingInterceptor.NoInternetException) {
+//            _res.postValue(e.message.let {
+//                Resource.error(it, null) })
+//            e.printStackTrace()
+            _res.postValue(Resource.error(e.message, null))
+         //   e.printStackTrace()
         } catch (e: UnknownHostException) {
             _res.postValue(e.message?.let {
                 Resource.error(it, null) })
-            e.printStackTrace()
         }
     }
 
+    // get details of particular movie from omdbApi searched with imdbID
     fun getMovieDetails(imdbId: String) = viewModelScope.launch {
         Log.d("movieDetails", "VIEWMODEL, resMovie: " + resMovieDetails.value)
         try {
-            _resMovieDetails.postValue(Event(Resource.loading(null)))
+            _resMovieDetails.postValue(Resource.loading(null))
             repository.getMovieByImdbID(imdbId).let {
                 if (it.isSuccessful) {
-                    _resMovieDetails.postValue(Event(Resource.success(it.body())))
+                    _resMovieDetails.postValue(Resource.success(it.body()))
                 } else {
-                    _resMovieDetails.postValue(Event(Resource.error(it.raw().message(), null)))
+                    _resMovieDetails.postValue(Resource.error(it.raw().message(), null))
                 }
             }
         } catch (e: IOException) {
-            _resMovieDetails.postValue(Event(Resource.error(e.localizedMessage, null)))
+            _resMovieDetails.postValue(Resource.error(e.localizedMessage, null))
             e.printStackTrace()
         }
 
     }
 
+    // set title for omdbApi when searching movies
     fun setQueryForSearch(query: String) {
         titleToSearch = query
         getMovies(titleToSearch)
     }
 
+    // set imdbID for omdbApi when searching movie details
     fun setImdbIDForSearch(query: String) {
         imdbIDToSearch = query
         getMovieDetails(imdbIDToSearch)
@@ -94,20 +107,8 @@ private val _isMovieInDb = MutableLiveData<Boolean>()
      val isMovieInDb: LiveData<Boolean>
     get() = _isMovieInDb
 
-
-    // insert favorite movie to room database
-    fun insertMovie(movie: Movie) = viewModelScope.launch {
-        repository.insert(movie)
-    }
-
-    // delete favorite movie from room database
-    fun deleteMovie(movie: Movie) = viewModelScope.launch {
-        repository.delete(movie)
-    }
-
-    val favMovies: LiveData<List<Movie>> = repository.favoriteMovies
-
-
+    // check if movie is already in database - used in DetailsFragment
+    // if false -> save movie; if true -> show snackBar with message
     fun checkIfMovieIsInDb(imdbID: String) = viewModelScope.launch {
         repository.isMovieInDb(imdbID)
         if (repository.isMovieInDb(imdbID) > 0) {
@@ -116,5 +117,36 @@ private val _isMovieInDb = MutableLiveData<Boolean>()
             _isMovieInDb.postValue(false)
         }
     }
+
+    // insert favorite movie in database
+    fun insertMovie(movie: Movie) = viewModelScope.launch {
+        repository.insert(movie)
+    }
+
+    // delete favorite movie from database
+    fun deleteMovie(movie: Movie) = viewModelScope.launch {
+        repository.delete(movie)
+    }
+
+    // delete movie with imdbID - called from SearchFragment
+    fun deleteMovieWithImdbID(imdbID: String) = viewModelScope.launch {
+        repository.deleteMovieWithImdbID(imdbID)
+    }
+
+    // get all movies ("Favorites") from database and show them on HomeFragment
+    val favMovies: LiveData<List<Movie>> = repository.favoriteMovies
+
+//    init {
+//        favMoviesHelper = favMovies.value as ArrayList<Movie>?
+//        Log.d(
+//            "movieDetails",
+//            "VIEWMODEL -------- favMoviesHelper: " + (favMoviesHelper?.size ?: 0)
+//        )
+//    }
+
+
+
+
+
 
 }

@@ -6,4 +6,5 @@ data class MovieDB(
     val imdbID: String,
 ) {
     var isFavorite: Boolean = false
+    var isInDB: Boolean = false
 }

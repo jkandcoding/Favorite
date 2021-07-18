@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.jkandcoding.android.favorite.R
 import com.jkandcoding.android.favorite.databinding.FragmentHomeBinding
-import com.jkandcoding.android.favorite.network.Movie
+import com.jkandcoding.android.favorite.database.Movie
 import com.jkandcoding.android.favorite.ui.MovieViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -38,6 +38,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), MovieFavoriteAdapter.OnDe
         _binding = FragmentHomeBinding.bind(view)
         setHasOptionsMenu(true)
 
+     //   addSearchMoviesToDatabase()
         getFavoriteMoviesFromDb()
     }
 
@@ -131,5 +132,64 @@ class HomeFragment : Fragment(R.layout.fragment_home), MovieFavoriteAdapter.OnDe
         findNavController().navigate(action)
     }
 
+//    private fun addSearchMoviesToDatabase() {
+//        val moviesForSave: ArrayList<MovieDB>? = viewModel.searchMoviesForSave
+//
+//        if (moviesForSave != null) {
+//           for (movie in moviesForSave) {
+//               getAllMovieDataFromApi(movie.imdbID)
+//           }
+//        }
+//        viewModel.searchMoviesForSave?.clear()
+//    }
+
+//    private fun getAllMovieDataFromApi(imdbID: String) {
+//        Log.d("movieDetails", "HOMEFragment-onItemClick, imdbID: " + imdbID)
+//        // get movieDetails from api and show them in DetailsFragment
+//        viewModel.getMovieDetails(imdbID)
+//
+//        //todo this must be handled differently
+//        //this sets searchMovieByImdbID variable
+//        Handler(Looper.getMainLooper()).postDelayed({
+//            seeMovieResultFromApi()
+//        }, 500)
+//    }
+
+//    private fun seeMovieResultFromApi() {
+//        Log.d(
+//            "movieDetails",
+//            "SearchFragment-seeMovieResultFromApi, resMovie: " + viewModel.resMovieDetails.value
+//        )
+//        viewModel.resMovieDetails.observe(viewLifecycleOwner) { resource ->
+//            when (resource.status) {
+//                Status.SUCCESS -> {
+//                    binding.pbHomeProgressBar.visibility = View.GONE
+//                    resource.data?.let {
+//                        Log.d(
+//                            "movieDetails",
+//                            "SearchFragment - SUCCESS - searchMovieDetails: " + it.Title
+//                        )
+//
+//                            viewModel.insertMovie(it)
+//
+//                        Log.d("movieDetails", "SearchFragment-SHOW/SEND!!! - searchMovieByImdbID.title: " + it.Title)
+//                    }
+//                }
+//                Status.LOADING -> {
+//                    Log.d("movieDetails", "SearchFragment-searchMovieDetails - LOADING...")
+//                    binding.pbHomeProgressBar.visibility = View.VISIBLE
+//                }
+//                Status.ERROR -> {
+//                    binding.pbHomeProgressBar.visibility = View.GONE
+//                    Snackbar.make(
+//                        binding.root,
+//                        "Can't get movie details, " + resource.message,
+//                        Snackbar.LENGTH_SHORT
+//                    ).show()
+//                    Log.d("movieDetails", "SearchFragment - ERROR: " + resource.message)
+//                }
+//            }
+//        }
+//    }
 
 }

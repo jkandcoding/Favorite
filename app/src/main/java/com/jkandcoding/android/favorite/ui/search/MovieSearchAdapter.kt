@@ -1,26 +1,36 @@
 package com.jkandcoding.android.favorite.ui.search
 
+import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import android.widget.ToggleButton
 import androidx.annotation.IdRes
 import androidx.recyclerview.widget.RecyclerView
 import com.jkandcoding.android.favorite.R
 import com.jkandcoding.android.favorite.database.MovieDB
-import com.jkandcoding.android.favorite.databinding.ItemSearchMovieBinding
+import com.jkandcoding.android.favorite.database.Movie
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 class MovieSearchAdapter(
+    private val context: Context,
     private val dataset: MutableList<RecyclerViewContainer>,
     private val listener: OnItemClickListener,
     private val saveMovieListener: OnSaveMovieBtnClickListener
 ) : RecyclerView.Adapter<MovieSearchAdapter.MovieViewHolder>() {
 
-    var savedMovies: ArrayList<MovieDB> = arrayListOf()
+    var savedMovies: ArrayList<MovieDB> = arrayListOf()   // todo ovo za brisati
+    var favorites: List<Movie> = listOf()
+
+    fun setFavoriteList(fav: List<Movie>) {
+        this.favorites = fav
+        Log.d("jfjfh", "MovieSearchAdapter, favorites.size: " + favorites.size)
+    }
+
 
     inner class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
@@ -69,28 +79,48 @@ class MovieSearchAdapter(
 
             toggleBtnView.setOnCheckedChangeListener(null)
 
+            // if movie is in favorites, check toggleBtnView
+            if (favorites.isNotEmpty()) {
+                Log.d("jfjfh", "MovieSearchAdapter, setItems - favorites.size: " + favorites.size)
+                for (movie in favorites) {
+                    Log.d("jfjfh", "MovieSearchAdapter, setItems - movie.imdbID: " + movie.imdbID)
+                    Log.d("jfjfh", "MovieSearchAdapter, setItems - item.imdbID: " + item.imdbID)
+                    if (movie.imdbID == item.imdbID) {
+                        item.isFavorite = true
+                        item.isInDB = true  //todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+                        Log.d("jfjfh", "MovieSearchAdapter, setItems - item.imdbID: " + item.imdbID)
+                    }
+                }
+            }
+
             toggleBtnView.isChecked = item.isFavorite
 
             toggleBtnView.setOnCheckedChangeListener { _, b ->
 
                 if (item.isFavorite) {
+                    if (item.isInDB) {
+
+                        Toast.makeText(context, "Deleting movie from favorites", Toast.LENGTH_SHORT).show()
+
+                    }
                     toggleBtnView.isChecked = false
                     item.isFavorite = false
+                    item.isInDB = false
                     // delete movie
-                   // saveMovieListener.onSaveMovieBtnClick(item, false)
-                     savedMovies.remove(item)
+                    saveMovieListener.onSaveMovieBtnClick(item, false)
+                    //  savedMovies.remove(item)
                 } else {
                     toggleBtnView.isChecked = true
                     item.isFavorite = true
                     // save movie
-                   // saveMovieListener.onSaveMovieBtnClick(item, true)
-                    savedMovies.add(item)
+                    saveMovieListener.onSaveMovieBtnClick(item, true)
+                    //  savedMovies.add(item)
                 }
-                saveMovieListener.onSaveMovieBtnClick(savedMovies)
+                // saveMovieListener.onSaveMovieBtnClick(savedMovies)
                 Log.d("favButton", "setOnCheckedChangeListener, savedMovies: " + savedMovies)
             }
-      }
-   }
+        }
+    }
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
@@ -140,6 +170,6 @@ class MovieSearchAdapter(
     }
 
     interface OnSaveMovieBtnClickListener {
-        fun onSaveMovieBtnClick(movies: List<MovieDB>)
+        fun onSaveMovieBtnClick(movieDB: MovieDB, addToSaveList: Boolean)
     }
 }

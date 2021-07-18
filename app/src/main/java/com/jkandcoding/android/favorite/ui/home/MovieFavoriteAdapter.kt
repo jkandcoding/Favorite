@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.jkandcoding.android.favorite.R
 import com.jkandcoding.android.favorite.databinding.ItemFavoriteMovieBinding
-import com.jkandcoding.android.favorite.network.Movie
+import com.jkandcoding.android.favorite.database.Movie
 import com.jkandcoding.android.favorite.ui.home.MovieFavoriteAdapter.MovieFavoriteViewHolder
 
 class MovieFavoriteAdapter(
@@ -51,6 +51,6 @@ class MovieFavoriteAdapter(
     }
 
     interface OnDeleteBtnClickListener {
-        fun onDeleteClick(movie: Movie)
+        fun onDeleteClick(deleteMovie: Movie)
     }
 }

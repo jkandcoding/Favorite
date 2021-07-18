@@ -17,7 +17,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.jkandcoding.android.favorite.R
 import com.jkandcoding.android.favorite.database.MovieDB
 import com.jkandcoding.android.favorite.databinding.FragmentSearchBinding
-import com.jkandcoding.android.favorite.network.Movie
+import com.jkandcoding.android.favorite.database.Movie
 import com.jkandcoding.android.favorite.other.Status
 import com.jkandcoding.android.favorite.ui.MovieViewModel
 import com.jkandcoding.android.favorite.ui.home.HomeFragment
@@ -37,6 +37,8 @@ class SearchFragment : Fragment(R.layout.fragment_search), MovieSearchAdapter.On
 
     private var movieListForSave: List<MovieDB> = listOf()
 
+    private var favMovies: List<Movie> = listOf()
+
     private val viewModel by activityViewModels<MovieViewModel>()
 
     private var _binding: FragmentSearchBinding? = null
@@ -53,12 +55,21 @@ class SearchFragment : Fragment(R.layout.fragment_search), MovieSearchAdapter.On
         _binding = FragmentSearchBinding.bind(view)
         setHasOptionsMenu(true)
 
+        setFavoritesInsideMovieSearchAdapter()
         setData()
+
+    }
+
+    private fun setFavoritesInsideMovieSearchAdapter() {
+        viewModel.favMovies.observe(viewLifecycleOwner) {
+           favMovies = it
+        }
     }
 
     private fun setRecyclerView() {
         viewManager = LinearLayoutManager(this.context)
-        val myAdapter = MovieSearchAdapter(itemList, this, this)
+        val myAdapter = MovieSearchAdapter(requireContext(), itemList, this, this)
+        myAdapter.setFavoriteList(favMovies)
         myAdapter.notifyDataSetChanged()
 
         recyclerView = binding.searchRecyclerView.apply {
@@ -73,7 +84,7 @@ class SearchFragment : Fragment(R.layout.fragment_search), MovieSearchAdapter.On
         viewModel.res.observe(viewLifecycleOwner) { resource ->
             when (resource.status) {
                 Status.SUCCESS -> {
-                    binding.pbSearchSearchProgressBar.visibility = View.GONE
+                    binding.pbSearchProgressBar.visibility = View.GONE
                     resource.data?.let { movieResponse ->
                         if (movieResponse.Search?.isNotEmpty() == true) {
                             searchMovieList = movieResponse.Search
@@ -104,10 +115,10 @@ class SearchFragment : Fragment(R.layout.fragment_search), MovieSearchAdapter.On
                 }
                 Status.LOADING -> {
                     Log.d("responseMovie", "HomeFragment - LOADING...")
-                    binding.pbSearchSearchProgressBar.visibility = View.VISIBLE
+                    binding.pbSearchProgressBar.visibility = View.VISIBLE
                 }
                 Status.ERROR -> {
-                    binding.pbSearchSearchProgressBar.visibility = View.GONE
+                    binding.pbSearchProgressBar.visibility = View.GONE
                     Snackbar.make(
                         binding.root,
                         "Can't get to movies. " + (resource.message),
@@ -176,7 +187,7 @@ class SearchFragment : Fragment(R.layout.fragment_search), MovieSearchAdapter.On
     override fun onResume() {
         super.onResume()
         setAdapterListWithMoviesAndHeaders()
-        Log.d("movieDetails", "SearchFragment - onResume " + itemList.size)
+        //  Log.d("movieDetails", "SearchFragment - onResume " + itemList.size)
         setRecyclerView()
     }
 
@@ -210,66 +221,89 @@ class SearchFragment : Fragment(R.layout.fragment_search), MovieSearchAdapter.On
             "movieDetails",
             "SearchFragment-seeMovieResultFromApi, resMovie: " + viewModel.resMovieDetails.value
         )
-        viewModel.resMovieDetails.observe(viewLifecycleOwner) {
-            it.getContentIfNotHandled()?.let { resource ->
-                when (resource.status) {
-                    Status.SUCCESS -> {
-                        binding.pbSearchSearchProgressBar.visibility = View.GONE
-                        resource.data?.let { movieResponse ->
-                            searchMovieByImdbID = movieResponse
-                            Log.d(
-                                "movieDetails",
-                                "SearchFragment - SUCCESS - searchMovieDetails: " + searchMovieByImdbID!!.Title
-                            )
-                            if (saveOrShow == SAVE) {
-                                viewModel.insertMovie(searchMovieByImdbID!!)
-                            } else {
-                                goToDetailsFragment(searchMovieByImdbID!!)
-                            }
-                            Log.d("movieDetails", "SearchFragment-SHOW/SEND!!! - searchMovieByImdbID.title: " + searchMovieByImdbID!!.Title)
+        viewModel.resMovieDetails.observe(viewLifecycleOwner) { resource ->
+            when (resource.status) {
+                Status.SUCCESS -> {
+                    binding.pbSearchProgressBar.visibility = View.GONE
+                    resource.data?.let { movieResponse ->
+                        searchMovieByImdbID = movieResponse
+                        Log.d(
+                            "movieDetails",
+                            "SearchFragment - SUCCESS - searchMovieDetails: " + searchMovieByImdbID!!.Title
+                        )
+                        if (saveOrShow == SAVE) {
+                            viewModel.insertMovie(searchMovieByImdbID!!)
+                        } else {
+                            goToDetailsFragment(searchMovieByImdbID!!)
                         }
+                        Log.d(
+                            "movieDetails",
+                            "SearchFragment-SHOW/SEND!!! - searchMovieByImdbID.title: " + searchMovieByImdbID!!.Title
+                        )
                     }
-                    Status.LOADING -> {
-                        Log.d("movieDetails", "SearchFragment-searchMovieDetails - LOADING...")
-                        binding.pbSearchSearchProgressBar.visibility = View.VISIBLE
+                }
+                Status.LOADING -> {
+                    Log.d("movieDetails", "SearchFragment-searchMovieDetails - LOADING...")
+                    if (saveOrShow == SHOW) {
+                        binding.pbSearchProgressBar.visibility = View.VISIBLE
+                    } else {
+                        binding.pbSearchProgressBar.visibility = View.GONE
                     }
-                    Status.ERROR -> {
-                        binding.pbSearchSearchProgressBar.visibility = View.GONE
-                        Snackbar.make(
-                            binding.root,
-                            "Can't get movie details, " + resource.message,
-                            Snackbar.LENGTH_SHORT
-                        ).show()
-                        Log.d("movieDetails", "SearchFragment - ERROR: " + resource.message)
-                    }
+
+                }
+                Status.ERROR -> {
+                    binding.pbSearchProgressBar.visibility = View.GONE
+                    Snackbar.make(
+                        binding.root,
+                        "Can't get movie details, " + resource.message,
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                    Log.d("movieDetails", "SearchFragment - ERROR: " + resource.message)
                 }
             }
         }
     }
 
     private fun goToDetailsFragment(movie: Movie) {
+        Log.d("movieDetails", "SearchFragment - goToDetailsFragment: " + movie.Title)
         val action =
             SearchFragmentDirections.actionSearchFragmentToDetailsFragment(movie, movie.Title)
         findNavController().navigate(action)
     }
 
-    override fun onSaveMovieBtnClick(movies: List<MovieDB>) {
-        movieListForSave = movies
-        for (movie in movieListForSave) {
-            Log.d(
-                "favButton",
-                "SearchFragment - onSaveMovieBtnClick, movieListForSave: " + movie.Title
-            )
+    override fun onSaveMovieBtnClick(movieDB: MovieDB, addToSaveList: Boolean) {
+        // movieListForSave = movie
+        if (addToSaveList == true) {
+            // viewModel.searchMoviesForSave?.add(movie)
 
             // search for movieDetails for every movie inside movieListForSave and save to DB
-            getAllMovieDataFromApi(movie.imdbID, SAVE)
+            getAllMovieDataFromApi(movieDB.imdbID, SAVE)
 
-
-            // todo ovo nize je null
-            // searchMovieByImdbID?.let { viewModel.insertMovie(it) }
-
-
+        } else {
+//            val helperList: List<Movie>? = viewModel.favMoviesHelper
+//            if (helperList != null) {
+//                Log.d(
+//                    "movieDetails",
+//                    "SearchFragment -------- onSaveMovieBtnClick: " + helperList.size
+//                )
+//            }
+//            if (helperList != null) {
+//                for (movie in helperList) {
+//                    if (movie.imdbID != movieDB.imdbID) {
+//                        viewModel.deleteMovieWithImdbID(movieDB.imdbID)
+//                    }
+//                }
+//            } else {
+//                viewModel.deleteMovieWithImdbID(movieDB.imdbID)
+//            }
+            viewModel.deleteMovieWithImdbID(movieDB.imdbID)
         }
+
+        Log.d(
+            "favButton",
+            "SearchFragment - onSaveMovieBtnClick, movieListForSave.size: " + movieListForSave.size
+        )
+
     }
 
 

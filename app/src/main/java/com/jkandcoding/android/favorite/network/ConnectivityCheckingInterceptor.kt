@@ -30,12 +30,20 @@ class ConnectivityCheckingInterceptor @Inject constructor(
         if (online) {
             return chain.proceed(chain.request())
         } else {
-            throw UnknownHostException("Internet connection is unavailable")
+            throw NoInternetException()
           //  throw IOException("Internet connection is unavailable")
         }
     }
 
+
+
     override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
         online = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
+
+    class NoInternetException : IOException() {
+        override val message: String
+            get() = "No internet, check your Data connection"
+    }
+
 }

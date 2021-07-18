@@ -1,4 +1,4 @@
-package com.jkandcoding.android.favorite.network
+package com.jkandcoding.android.favorite.database
 
 import android.os.Parcelable
 import androidx.room.Entity

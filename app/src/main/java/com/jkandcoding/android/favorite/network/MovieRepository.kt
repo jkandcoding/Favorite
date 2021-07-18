@@ -3,7 +3,7 @@ package com.jkandcoding.android.favorite.network
 import android.util.Log
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
-import com.jkandcoding.android.favorite.database.MovieDB
+import com.jkandcoding.android.favorite.database.Movie
 import com.jkandcoding.android.favorite.database.MovieDao
 import retrofit2.Response
 import javax.inject.Inject
@@ -27,7 +27,7 @@ class MovieRepository @Inject constructor(
     }
 
 
-   val favoriteMovies: LiveData<List<Movie>> = movieDao.selectAllFavorites()
+    val favoriteMovies: LiveData<List<Movie>> = movieDao.selectAllFavorites()
 
     @WorkerThread
     suspend fun insert(movie: Movie) {
@@ -39,7 +39,12 @@ class MovieRepository @Inject constructor(
         movieDao.deleteMovie(movie)
     }
 
-@WorkerThread
-   suspend fun isMovieInDb(imdbID: String): Int = movieDao.isMovieInDb(imdbID)
+    @WorkerThread
+    suspend fun deleteMovieWithImdbID(imdbID: String) {
+        movieDao.deleteMovieWithIMDBID(imdbID)
+    }
+
+    @WorkerThread
+    suspend fun isMovieInDb(imdbID: String): Int = movieDao.isMovieInDb(imdbID)
 
 }
