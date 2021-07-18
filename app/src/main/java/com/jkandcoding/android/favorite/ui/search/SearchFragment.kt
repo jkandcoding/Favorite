@@ -33,8 +33,6 @@ class SearchFragment : Fragment(R.layout.fragment_search), MovieSearchAdapter.On
 
     private var searchMovieByImdbID: Movie? = null
 
-    private var favMovies: List<Movie> = listOf()
-
     private val viewModel by activityViewModels<MovieViewModel>()
 
     private var _binding: FragmentSearchBinding? = null
@@ -50,16 +48,8 @@ class SearchFragment : Fragment(R.layout.fragment_search), MovieSearchAdapter.On
         _binding = FragmentSearchBinding.bind(view)
         setHasOptionsMenu(true)
 
-        // for tracking which search results are already in database
-        setFavoritesInsideMovieSearchAdapter()
         // set search results
         setData()
-    }
-
-    private fun setFavoritesInsideMovieSearchAdapter() {
-        viewModel.favMovies.observe(viewLifecycleOwner) {
-            favMovies = it
-        }
     }
 
     private fun setData() {
@@ -104,8 +94,10 @@ class SearchFragment : Fragment(R.layout.fragment_search), MovieSearchAdapter.On
     private fun setRecyclerView() {
         viewManager = LinearLayoutManager(this.context)
         val myAdapter = MovieSearchAdapter(requireContext(), itemList, this, this)
-        myAdapter.setFavoriteList(favMovies)
-        myAdapter.notifyDataSetChanged()
+        viewModel.favMovies.observe(viewLifecycleOwner) {
+            myAdapter.setFavoriteList(it)
+            myAdapter.notifyDataSetChanged()
+        }
 
         recyclerView = binding.searchRecyclerView.apply {
             setHasFixedSize(true)
