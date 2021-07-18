@@ -56,7 +56,7 @@ class SearchFragment : Fragment(R.layout.fragment_search), MovieSearchAdapter.On
         viewModel.res.observe(viewLifecycleOwner) { resource ->
             when (resource.status) {
                 Status.SUCCESS -> {
-                    binding.pbSearchProgressBar.visibility = View.GONE
+                    binding.pbSearchProgressBar.pbProgressBar.visibility = View.GONE
                     resource.data?.let { movieResponse ->
                         if (movieResponse.Search?.isNotEmpty() == true) {
                             searchMovieList = movieResponse.Search
@@ -77,10 +77,10 @@ class SearchFragment : Fragment(R.layout.fragment_search), MovieSearchAdapter.On
                     }
                 }
                 Status.LOADING -> {
-                    binding.pbSearchProgressBar.visibility = View.VISIBLE
+                    binding.pbSearchProgressBar.pbProgressBar.visibility = View.VISIBLE
                 }
                 Status.ERROR -> {
-                    binding.pbSearchProgressBar.visibility = View.GONE
+                    binding.pbSearchProgressBar.pbProgressBar.visibility = View.GONE
                     Snackbar.make(
                         binding.root,
                         getString(R.string.cant_get_to_movies) + (resource.message),
@@ -173,7 +173,7 @@ class SearchFragment : Fragment(R.layout.fragment_search), MovieSearchAdapter.On
         viewModel.resMovieDetails.observe(viewLifecycleOwner) { resource ->
             when (resource.status) {
                 Status.SUCCESS -> {
-                    binding.pbSearchProgressBar.visibility = View.GONE
+                    binding.pbSearchProgressBar.pbProgressBar.visibility = View.GONE
                     resource.data?.let { movieResponse ->
                         searchMovieByImdbID = movieResponse
                         if (saveOrShow == SAVE) {
@@ -185,13 +185,13 @@ class SearchFragment : Fragment(R.layout.fragment_search), MovieSearchAdapter.On
                 }
                 Status.LOADING -> {
                     if (saveOrShow == SHOW) {
-                        binding.pbSearchProgressBar.visibility = View.VISIBLE
+                        binding.pbSearchProgressBar.pbProgressBar.visibility = View.VISIBLE
                     } else {
-                        binding.pbSearchProgressBar.visibility = View.GONE
+                        binding.pbSearchProgressBar.pbProgressBar.visibility = View.GONE
                     }
                 }
                 Status.ERROR -> {
-                    binding.pbSearchProgressBar.visibility = View.GONE
+                    binding.pbSearchProgressBar.pbProgressBar.visibility = View.GONE
                     Snackbar.make(
                         binding.root,
                         getString(R.string.cant_get_movie_details) + resource.message,
