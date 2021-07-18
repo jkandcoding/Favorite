@@ -45,7 +45,8 @@ object AppModule {
     @Provides
     @Singleton
     fun provideMovieDatabase(
-        @ApplicationContext context: Context): MovieDatabase = MovieDatabase.getInstance(context)
+        @ApplicationContext context: Context
+    ): MovieDatabase = MovieDatabase.getInstance(context)
 
     @Provides
     @Singleton

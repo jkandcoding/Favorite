@@ -41,7 +41,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
-            android:text="IMDb"
+            android:text="@string/imdb"
             app:layout_constraintBottom_toTopOf="@+id/cg_details_chipGroup"
             app:layout_constraintStart_toStartOf="@+id/cg_details_chipGroup" />
 

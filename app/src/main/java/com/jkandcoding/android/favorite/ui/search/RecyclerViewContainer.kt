@@ -1,10 +1,9 @@
 package com.jkandcoding.android.favorite.ui.search
 
-import com.jkandcoding.android.favorite.database.MovieDB
+import com.jkandcoding.android.favorite.other.MovieHelperPojo
 
 class RecyclerViewContainer(
-    var movie: MovieDB?,
+    var movie: MovieHelperPojo?,
     var isHeader: Boolean,
     var headerYear: String?
-) {
-}
+)

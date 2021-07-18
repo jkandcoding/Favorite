@@ -19,5 +19,5 @@ interface MovieDao {
     fun selectAllFavorites(): LiveData<List<Movie>>
 
     @Query("SELECT COUNT(*) FROM movies WHERE imdbID = :imdbID")
-   suspend fun isMovieInDb(imdbID: String): Int
+    suspend fun isMovieInDb(imdbID: String): Int
 }

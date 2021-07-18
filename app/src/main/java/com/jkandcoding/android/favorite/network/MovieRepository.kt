@@ -1,6 +1,5 @@
 package com.jkandcoding.android.favorite.network
 
-import android.util.Log
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import com.jkandcoding.android.favorite.database.Movie
@@ -15,17 +14,12 @@ class MovieRepository @Inject constructor(
     private val movieDao: MovieDao
 ) {
     suspend fun getMoviesByTitle(title: String): Response<MovieResponse> {
-        val responseMovie: Response<MovieResponse> = favoriteApi.searchMoviesByTitle(title)
-        Log.d("responseMovie", "Repository - response from api: " + responseMovie)
-        return responseMovie
+        return favoriteApi.searchMoviesByTitle(title)
     }
 
     suspend fun getMovieByImdbID(imdbID: String): Response<Movie> {
-        val responseMovie: Response<Movie> = favoriteApi.searchMoviesByImdbID(imdbID)
-        Log.d("movieDetails", "Repository - response from api: " + responseMovie)
-        return responseMovie
+        return favoriteApi.searchMoviesByImdbID(imdbID)
     }
-
 
     val favoriteMovies: LiveData<List<Movie>> = movieDao.selectAllFavorites()
 

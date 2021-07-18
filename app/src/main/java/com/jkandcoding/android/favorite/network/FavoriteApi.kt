@@ -12,9 +12,8 @@ interface FavoriteApi {
     companion object {
         const val BASE_URL = "http://www.omdbapi.com"
         const val CLIENT_ID = BuildConfig.OMDB_ACCESS_KEY
-     }
+    }
 
-    //@Headers("apikey: $CLIENT_ID")
     @GET("?apikey=$CLIENT_ID")
     suspend fun searchMoviesByTitle(
         @Query("s") title: String,
@@ -23,6 +22,6 @@ interface FavoriteApi {
     @GET("?apikey=$CLIENT_ID")
     suspend fun searchMoviesByImdbID(
         @Query("i") imdbID: String
-    ): Response<Movie>  //todo vidi sto ovdje
+    ): Response<Movie>
 
 }

@@ -5,12 +5,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.jkandcoding.android.favorite.R
-import com.jkandcoding.android.favorite.databinding.ItemFavoriteMovieBinding
 import com.jkandcoding.android.favorite.database.Movie
+import com.jkandcoding.android.favorite.databinding.ItemFavoriteMovieBinding
 import com.jkandcoding.android.favorite.ui.home.MovieFavoriteAdapter.MovieFavoriteViewHolder
 
 class MovieFavoriteAdapter(
-    var favoriteMoviesList: List<Movie>,
+    private var favoriteMoviesList: List<Movie>,
     private val deleteListener: OnDeleteBtnClickListener,
     private val itemClickListener: OnFavoriteItemClickListener
 ) : RecyclerView.Adapter<MovieFavoriteViewHolder>() {

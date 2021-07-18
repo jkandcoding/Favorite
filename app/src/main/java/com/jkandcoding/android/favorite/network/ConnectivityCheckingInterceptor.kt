@@ -7,7 +7,6 @@ import android.os.Build
 import okhttp3.Interceptor
 import okhttp3.Response
 import java.io.IOException
-import java.net.UnknownHostException
 import javax.inject.Inject
 
 class ConnectivityCheckingInterceptor @Inject constructor(

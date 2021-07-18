@@ -23,11 +23,11 @@
         android:name="com.jkandcoding.android.favorite.ui.details.DetailsFragment"
         android:label="{movieTitle}">
         <argument
-            android:name="movieDetails"
-            app:argType="com.jkandcoding.android.favorite.network.Movie" />
-        <argument
             android:name="movieTitle"
             app:argType="string" />
+        <argument
+            android:name="movie"
+            app:argType="com.jkandcoding.android.favorite.database.Movie" />
     </fragment>
     <fragment
         android:id="@+id/searchFragment"

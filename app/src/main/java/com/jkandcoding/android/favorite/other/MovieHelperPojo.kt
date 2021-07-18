@@ -1,6 +1,6 @@
-package com.jkandcoding.android.favorite.database
+package com.jkandcoding.android.favorite.other
 
-data class MovieDB(
+data class MovieHelperPojo(
     val Title: String,
     val Year: String,
     val imdbID: String,

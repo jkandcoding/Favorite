@@ -1,7 +1,6 @@
 package com.jkandcoding.android.favorite.ui.search
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,10 +10,8 @@ import android.widget.ToggleButton
 import androidx.annotation.IdRes
 import androidx.recyclerview.widget.RecyclerView
 import com.jkandcoding.android.favorite.R
-import com.jkandcoding.android.favorite.database.MovieDB
 import com.jkandcoding.android.favorite.database.Movie
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
+import com.jkandcoding.android.favorite.other.MovieHelperPojo
 
 class MovieSearchAdapter(
     private val context: Context,
@@ -23,14 +20,12 @@ class MovieSearchAdapter(
     private val saveMovieListener: OnSaveMovieBtnClickListener
 ) : RecyclerView.Adapter<MovieSearchAdapter.MovieViewHolder>() {
 
-    var savedMovies: ArrayList<MovieDB> = arrayListOf()   // todo ovo za brisati
+    // movies from database -> used for marking movies from search result
     var favorites: List<Movie> = listOf()
 
     fun setFavoriteList(fav: List<Movie>) {
         this.favorites = fav
-        Log.d("jfjfh", "MovieSearchAdapter, favorites.size: " + favorites.size)
     }
-
 
     inner class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
@@ -63,11 +58,10 @@ class MovieSearchAdapter(
         }
 
         fun setItems(
-            item: MovieDB,
+            item: MovieHelperPojo,
             @IdRes textViewId: Int,
             @IdRes toggleBtnId: Int,
         ) {
-            //todo set onclicklistener on button inside item
             val textView = (viewMap[textViewId]
                 ?: throw IllegalArgumentException("View for $textViewId not found")) as? TextView
                 ?: throw IllegalArgumentException("View for $textViewId is not a TextView")
@@ -81,47 +75,37 @@ class MovieSearchAdapter(
 
             // if movie is in favorites, check toggleBtnView
             if (favorites.isNotEmpty()) {
-                Log.d("jfjfh", "MovieSearchAdapter, setItems - favorites.size: " + favorites.size)
                 for (movie in favorites) {
-                    Log.d("jfjfh", "MovieSearchAdapter, setItems - movie.imdbID: " + movie.imdbID)
-                    Log.d("jfjfh", "MovieSearchAdapter, setItems - item.imdbID: " + item.imdbID)
                     if (movie.imdbID == item.imdbID) {
                         item.isFavorite = true
-                        item.isInDB = true  //todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
-                        Log.d("jfjfh", "MovieSearchAdapter, setItems - item.imdbID: " + item.imdbID)
+                        item.isInDB =
+                            true   // showing toast msg when deleting movie which was previously in database
                     }
                 }
             }
 
             toggleBtnView.isChecked = item.isFavorite
 
-            toggleBtnView.setOnCheckedChangeListener { _, b ->
-
+            toggleBtnView.setOnCheckedChangeListener { _, _ ->
                 if (item.isFavorite) {
                     if (item.isInDB) {
-
-                        Toast.makeText(context, "Deleting movie from favorites", Toast.LENGTH_SHORT).show()
-
+                        Toast.makeText(context, "Deleting movie from favorites", Toast.LENGTH_SHORT)
+                            .show()
                     }
                     toggleBtnView.isChecked = false
                     item.isFavorite = false
                     item.isInDB = false
-                    // delete movie
+                    // movie will be deleted from db
                     saveMovieListener.onSaveMovieBtnClick(item, false)
-                    //  savedMovies.remove(item)
                 } else {
                     toggleBtnView.isChecked = true
                     item.isFavorite = true
-                    // save movie
+                    // movie will be saved to db
                     saveMovieListener.onSaveMovieBtnClick(item, true)
-                    //  savedMovies.add(item)
                 }
-                // saveMovieListener.onSaveMovieBtnClick(savedMovies)
-                Log.d("favButton", "setOnCheckedChangeListener, savedMovies: " + savedMovies)
             }
         }
     }
-
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -152,16 +136,15 @@ class MovieSearchAdapter(
                 }
             }
         }
-
     }
 
     override fun getItemCount(): Int = dataset.size
 
     override fun getItemViewType(position: Int): Int {
-        if (dataset[position].isHeader) {
-            return 0
+        return if (dataset[position].isHeader) {
+            0
         } else {
-            return 1
+            1
         }
     }
 
@@ -170,6 +153,6 @@ class MovieSearchAdapter(
     }
 
     interface OnSaveMovieBtnClickListener {
-        fun onSaveMovieBtnClick(movieDB: MovieDB, addToSaveList: Boolean)
+        fun onSaveMovieBtnClick(movieHelperPojo: MovieHelperPojo, saveInsteadDelete: Boolean)
     }
 }
