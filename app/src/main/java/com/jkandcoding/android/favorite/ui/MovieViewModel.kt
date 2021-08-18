@@ -117,4 +117,5 @@ class MovieViewModel @Inject constructor(
     // get all movies ("Favorites") from database and show them on HomeFragment
     val favMovies: LiveData<List<Movie>> = repository.favoriteMovies
 
+
 }

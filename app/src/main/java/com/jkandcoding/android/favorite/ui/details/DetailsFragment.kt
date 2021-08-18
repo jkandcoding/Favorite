@@ -6,6 +6,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.navArgs
+import com.bumptech.glide.Glide
 import com.google.android.material.chip.Chip
 import com.google.android.material.snackbar.Snackbar
 import com.jkandcoding.android.favorite.R
@@ -41,6 +42,10 @@ class DetailsFragment : Fragment(R.layout.fragment_details) {
             tvDetailsRuntime.text = movie!!.Runtime
             tvDetailsImdbRating.text = getString(R.string.from10, movie!!.imdbRating)
             tvDetailsPlot.text = movie!!.Plot
+            Glide.with(this@DetailsFragment)
+                .load(movie!!.Poster)
+                .centerCrop()
+                .into(ivDetailsPoster)
         }
         setHasOptionsMenu(true)
         viewModel.checkIfMovieIsInDb(movie!!.imdbID)
@@ -51,18 +56,27 @@ class DetailsFragment : Fragment(R.layout.fragment_details) {
         inflater.inflate(R.menu.menu_details, menu)
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        val item = menu.findItem(R.id.action_save)
+        viewModel.isMovieInDb.observe(viewLifecycleOwner) {
+            if (it == true) {
+                item.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_heart_on_white_24)
+            } else {
+                item.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_heart_off_white_24)
+            }
+        }
+
+    }
+
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_save -> {
-            item.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_heart_on_white_24)
-            // based
             viewModel.isMovieInDb.observe(viewLifecycleOwner) { it ->
                 if (it == true) {
-                    Snackbar.make(
-                        this.requireView(),
-                        getString(R.string.movie_is_already_in_favorites),
-                        Snackbar.LENGTH_SHORT
-                    ).show()
+                    item.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_heart_off_white_24)
+                    movie?.let { viewModel.deleteMovie(it) }
                 } else {
+                    item.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_heart_on_white_24)
                     movie?.let { viewModel.insertMovie(it) }
                 }
             }
@@ -72,5 +86,7 @@ class DetailsFragment : Fragment(R.layout.fragment_details) {
             super.onOptionsItemSelected(item)
         }
     }
+
+
 
 }

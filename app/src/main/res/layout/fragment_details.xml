@@ -16,7 +16,6 @@
             android:layout_width="0dp"
             android:layout_height="200dp"
             android:layout_marginBottom="20dp"
-             android:background="@drawable/pulp_poster"
             android:scaleType="centerCrop"
             app:layout_constraintBottom_toTopOf="@id/v_details_line"
             app:layout_constraintEnd_toStartOf="@+id/cg_details_chipGroup"

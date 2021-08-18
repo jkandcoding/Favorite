@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.jkandcoding.android.favorite.R
 import com.jkandcoding.android.favorite.database.Movie
 import com.jkandcoding.android.favorite.databinding.ItemFavoriteMovieBinding
@@ -27,6 +28,12 @@ class MovieFavoriteAdapter(
             binding.apply {
                 tvFavoriteTitle.text = currentFavMovie.Title
                 tvFavoriteYear.text = currentFavMovie.Year
+                if (currentFavMovie.Poster !== null) {
+                    Glide.with(itemView)
+                        .load(currentFavMovie.Poster)
+                        .centerCrop()
+                        .into(ivFavoritePoster)
+                }
 
                 iBtnFavoriteFavBtn.setOnClickListener {
                     deleteListener.onDeleteClick(currentFavMovie)

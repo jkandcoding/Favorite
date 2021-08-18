@@ -96,7 +96,7 @@ class SearchFragment : Fragment(R.layout.fragment_search), MovieSearchAdapter.On
         val myAdapter = MovieSearchAdapter(requireContext(), itemList, this, this)
         viewModel.favMovies.observe(viewLifecycleOwner) {
             myAdapter.setFavoriteList(it)
-            myAdapter.notifyDataSetChanged()
+            //myAdapter.notifyDataSetChanged()
         }
 
         recyclerView = binding.searchRecyclerView.apply {
@@ -219,8 +219,8 @@ class SearchFragment : Fragment(R.layout.fragment_search), MovieSearchAdapter.On
 
     override fun onResume() {
         super.onResume()
-        setAdapterListWithMoviesAndHeaders()
         setRecyclerView()
+        setAdapterListWithMoviesAndHeaders()
     }
 
     override fun onDestroyView() {

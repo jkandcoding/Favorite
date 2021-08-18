@@ -16,5 +16,6 @@ data class Movie(
     @PrimaryKey
     val imdbID: String,
     val Genre: String?,
-    val Plot: String?
+    val Plot: String?,
+    val Poster: String?
 ) : Parcelable

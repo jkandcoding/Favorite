@@ -23,7 +23,6 @@
             android:id="@+id/iv_search_poster"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:background="@drawable/pulp_poster"
             app:layout_constraintEnd_toStartOf="@+id/tv_search_title"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintHorizontal_weight="1.2"
