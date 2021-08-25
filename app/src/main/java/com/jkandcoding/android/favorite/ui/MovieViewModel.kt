@@ -89,7 +89,6 @@ class MovieViewModel @Inject constructor(
         get() = _isMovieInDb
 
     // check if movie is already in database - used in DetailsFragment
-    // if false -> save movie; if true -> show snackBar with message
     fun checkIfMovieIsInDb(imdbID: String) = viewModelScope.launch {
         repository.isMovieInDb(imdbID)
         if (repository.isMovieInDb(imdbID) > 0) {
@@ -116,6 +115,5 @@ class MovieViewModel @Inject constructor(
 
     // get all movies ("Favorites") from database and show them on HomeFragment
     val favMovies: LiveData<List<Movie>> = repository.favoriteMovies
-
 
 }

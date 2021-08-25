@@ -1,13 +1,10 @@
 package com.jkandcoding.android.favorite.ui.search
 
-import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import android.widget.ToggleButton
 import androidx.annotation.IdRes
 import androidx.recyclerview.widget.RecyclerView
@@ -17,7 +14,6 @@ import com.jkandcoding.android.favorite.database.Movie
 import com.jkandcoding.android.favorite.other.MovieHelperPojo
 
 class MovieSearchAdapter(
-    private val context: Context,
     private val dataset: MutableList<RecyclerViewContainer>,
     private val listener: OnItemClickListener,
     private val saveMovieListener: OnSaveMovieBtnClickListener
@@ -25,21 +21,17 @@ class MovieSearchAdapter(
 
     // all movies from database -> used for marking movies from search result
     var favorites: List<Movie> = listOf()
+    var favoritesImdbs: List<String> = listOf()
 
     fun setFavoriteList(fav: List<Movie>) {
         this.favorites = fav
         notifyDataSetChanged()
-        for (movie in fav) {
-            Log.d("dssdd", "favMovies title: " + movie.Title)
-        }
-
     }
 
     inner class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         // holds all the child views
         private val viewMap: MutableMap<Int, View> = HashMap()
-        var isInDb: ArrayList<MovieHelperPojo>? = null
 
         init {
             findViewItems(itemView)
@@ -91,37 +83,21 @@ class MovieSearchAdapter(
 
             toggleBtnView.setOnCheckedChangeListener(null)
 
+            favoritesImdbs = favorites.map { movie -> movie.imdbID }
+            item.isInDB = favoritesImdbs.contains(item.imdbID)
             // if movie is in favorites, check toggleBtnView
-            if (favorites.isNotEmpty()) {
-
-                for (movie in favorites) {
-                    Log.d("dsssdd", "favMovies title: " + movie.Title)
-                    if (item.imdbID == movie.imdbID) {
-                        item.isInDB = true
-                        Log.d("dssssdd", "item.isInDB: " + item.Title)
-                    } else {
-                        Log.d("dssssdd", "item.removed: " + item.Title)
-                    }
-                }
-            }
-
             toggleBtnView.isChecked = item.isInDB
 
-            toggleBtnView.setOnCheckedChangeListener { compoundButton, b ->
-
-                //  if (item.isInDB) {
+            toggleBtnView.setOnCheckedChangeListener { _, _ ->
                 if (item.isInDB) {
                     toggleBtnView.isChecked = false
-                    // item.isFavorite = false
                     item.isInDB = false
                     // movie will be deleted from db
-                    Log.d("dssssdd", "deleting item: " + item.Title)
                     saveMovieListener.onSaveMovieBtnClick(item, false)
                 } else {
                     toggleBtnView.isChecked = true
                     item.isInDB = true
                     // movie will be saved to db
-                    Log.d("dssssdd", "saving item: " + item.Title)
                     saveMovieListener.onSaveMovieBtnClick(item, true)
                 }
             }

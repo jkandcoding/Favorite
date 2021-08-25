@@ -8,7 +8,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.google.android.material.chip.Chip
-import com.google.android.material.snackbar.Snackbar
 import com.jkandcoding.android.favorite.R
 import com.jkandcoding.android.favorite.database.Movie
 import com.jkandcoding.android.favorite.databinding.FragmentDetailsBinding
@@ -66,7 +65,6 @@ class DetailsFragment : Fragment(R.layout.fragment_details) {
                 item.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_heart_off_white_24)
             }
         }
-
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {

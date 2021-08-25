@@ -61,7 +61,8 @@ class SearchFragment : Fragment(R.layout.fragment_search), MovieSearchAdapter.On
                         if (movieResponse.Search?.isNotEmpty() == true) {
                             searchMovieList = movieResponse.Search
                             searchMovieListOrdered =
-                                searchMovieList.sortedWith(compareBy { it.Year })
+                                    //    searchMovieList.sortedWith(compareBy { it.Year })
+                                searchMovieList.sortedByDescending { it.Year }
 
                             setAdapterListWithMoviesAndHeaders()
                             setRecyclerView()
@@ -93,10 +94,9 @@ class SearchFragment : Fragment(R.layout.fragment_search), MovieSearchAdapter.On
 
     private fun setRecyclerView() {
         viewManager = LinearLayoutManager(this.context)
-        val myAdapter = MovieSearchAdapter(requireContext(), itemList, this, this)
+        val myAdapter = MovieSearchAdapter(itemList, this, this)
         viewModel.favMovies.observe(viewLifecycleOwner) {
             myAdapter.setFavoriteList(it)
-            //myAdapter.notifyDataSetChanged()
         }
 
         recyclerView = binding.searchRecyclerView.apply {
