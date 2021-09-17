@@ -24,16 +24,18 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField "String", "OMDB_ACCESS_KEY", localProperties['omdb_access_key']
+      //  buildConfigField "String", "OMDB_ACCESS_KEY", localProperties['omdb_access_key']
     }
 
     buildTypes {
 
+        debug {
+            buildConfigField("String", "OMDB_ACCESS_KEY", "\"" + localProperties['omdb_access_key'] + "\"")
+        }
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-
-
         }
     }
     compileOptions {
@@ -86,7 +88,7 @@ dependencies {
 
     // Glide
     implementation "com.github.bumptech.glide:glide:$glideVersion"
-    annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
+    kapt("com.github.bumptech.glide:compiler:$glideVersion")
 
     // Room
     implementation "androidx.room:room-runtime:$roomVersion"
